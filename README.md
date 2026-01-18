@@ -2,43 +2,88 @@
 
 Un plugin WordPress completo con interfaccia grafica per gestire facilmente la cache Redis e le configurazioni del plugin WP Redis 1.4.7.
 
-## 📋 Caratteristiche
+## Caratteristiche
 
-### ✨ Gestione Gruppi Cache
+### Gestione Gruppi Cache
 - **Gruppi Non Persistenti**: Configura gruppi che non vengono salvati in Redis (essenziale per carrelli WooCommerce)
 - **Redis Hash Groups**: Abilita Redis hashes per performance migliorate (riduce fino al 70% le chiamate Redis)
 - **Global Groups**: Gestisci gruppi condivisi per installazioni multisite
 
-### 🎯 Esclusione Pagine
-- **Esclusione Pagine Specifiche**: Seleziona pagine dove disabilitare completamente Redis
-- **Esclusione URL**: Configura pattern URL da escludere dalla cache
-- Ideale per pagine dinamiche come carrello, checkout, area utente
-
-### ⏱️ TTL Personalizzati
+### TTL Personalizzati
 - Imposta scadenze diverse per ogni gruppo cache
 - Valori predefiniti per casi d'uso comuni
 - Ottimizza memoria Redis evitando dati obsoleti
 
-### 🚀 Preset Configurazioni
+### Preset Configurazioni
 Carica rapidamente configurazioni ottimizzate per:
+- **YITH Request a Quote**: Configurazione sicura per YITH plugin
 - **WooCommerce**: Ottimizzato per ecommerce con carrello separato
 - **Blog/Magazine**: Perfetto per siti content-heavy
 - **Multisite**: Configurazione per network WordPress
 - **Performance Massime**: Cache aggressiva per massima velocità
 
-### 📊 Monitoring Real-time
+### Monitor Attività Redis (NUOVO in v1.1.0)
+Monitora le attività Redis in tempo reale con interfaccia dettagliata:
+
+- **Informazioni Server**: Versione Redis, modalità, sistema operativo, uptime, porta
+- **Utilizzo Memoria**: Memoria usata, picco, massimo, frammentazione, memoria Lua
+- **Client Connessi**: Numero client connessi, bloccati, tracking
+- **Keyspace**: Database utilizzati con conteggio chiavi e TTL
+
+#### Statistiche Comandi
+Visualizza i comandi Redis più utilizzati con:
+- Filtro per nome comando (es: GET, SET, HGET)
+- Ordinamento per chiamate, tempo totale o tempo medio
+- Limitazione top 10/25/50 o tutti
+- Grafici a barre per visualizzazione immediata
+- Codifica colori: lettura (verde), scrittura (giallo), info (blu)
+
+#### Slowlog (Query Lente)
+Monitora le query Redis che superano la soglia configurata:
+- Filtro per comando
+- Filtro per durata minima (microsecondi)
+- Timestamp, durata, comando completo e client
+
+### Esplora Chiavi Redis (NUOVO in v1.1.0)
+Browser completo per le chiavi memorizzate in Redis:
+
+- **Ricerca con Pattern**: Usa `*` come wildcard (es: `wp_*:posts:*`, `*session*`)
+- **Filtro per Tipo**: String, List, Set, Sorted Set, Hash, Stream
+- **Limite Risultati**: 50, 100, 200, 500 chiavi
+- **Paginazione**: Carica più risultati incrementalmente
+
+#### Informazioni Chiave
+Per ogni chiave visualizza:
+- Nome chiave
+- Tipo Redis (con badge colorato)
+- TTL (tempo di scadenza)
+- Utilizzo memoria
+
+#### Dettagli Chiave
+Ispeziona qualsiasi chiave con modal dettagliata:
+- Tipo, TTL, encoding interno, dimensione
+- Visualizzazione valore formattata:
+  - String: testo con JSON/PHP deserializzato
+  - List: lista ordinata elementi
+  - Set: insieme elementi
+  - Sorted Set: tabella membro/score
+  - Hash: tabella campo/valore
+- Eliminazione chiave singola
+
+### Monitoring Dashboard
 - Statistiche cache in tempo reale (hits, misses, hit rate)
 - Test connessione Redis
 - Info server Redis (versione, memoria, uptime)
 - Svuota cache con un click
+- Auto-refresh ogni 30 secondi
 
-## 📦 Installazione
+## Installazione
 
 ### Requisiti
 - WordPress 5.0 o superiore
 - PHP 7.4 o superiore
 - **WP Redis 1.4.7** (deve essere già installato e configurato)
-- Redis server attivo
+- Redis server attivo (versione 4.0+ consigliata per funzionalità complete)
 
 ### Metodo 1: Upload Manuale
 
@@ -55,7 +100,7 @@ Carica rapidamente configurazioni ottimizzate per:
 4. Attiva il plugin
 5. Vai su **Strumenti → Redis Manager**
 
-## 🔧 Configurazione
+## Configurazione
 
 ### Setup Iniziale Rapido
 
@@ -67,7 +112,7 @@ Carica rapidamente configurazioni ottimizzate per:
 
 3. **Carica un Preset** (consigliato per iniziare)
    - Vai alla tab "Preset"
-   - Scegli "WooCommerce Ottimizzato" se usi WooCommerce
+   - Scegli "WooCommerce Standard" se usi WooCommerce
    - Oppure "Blog/Magazine" per un sito standard
    - Clicca "Carica Preset"
 
@@ -105,15 +150,7 @@ wc_var_prices
 wc_attribute_taxonomies
 ```
 
-#### Esclusione Pagine (Tab: Esclusione Pagine)
-
-- **Pagine**: Seleziona da checklist
-- **URL**: Inserisci URL parziali, uno per riga:
-```
-/cart
-/checkout
-/my-account
-```
+**IMPORTANTE per YITH Request a Quote**: NON includere "options" se usi YITH Request a Quote! Le sessioni YITH sono salvate come WordPress options.
 
 #### TTL Custom (Tab: TTL Custom)
 
@@ -130,18 +167,80 @@ Valori comuni:
 - 1800 = 30 minuti
 - 3600 = 1 ora
 - 7200 = 2 ore
+- 86400 = 1 giorno
 
-## 📊 Monitoraggio
+## Utilizzo Monitor Attività
 
-### Dashboard
+### Come Accedere
+
+1. Vai su **Strumenti → Redis Manager**
+2. Clicca sulla tab **"Monitor Attività"**
+3. I dati vengono caricati automaticamente
+
+### Interpretare i Dati
+
+#### Statistiche Comandi
+- **Comandi in Verde (READ)**: GET, HGET, SCAN - operazioni di lettura
+- **Comandi in Giallo (WRITE)**: SET, HSET, DEL - operazioni di scrittura
+- **Comandi in Blu (INFO)**: INFO, CONFIG - comandi informativi
+
+#### Slowlog
+- **Durata Verde (<10ms)**: Performance normale
+- **Durata Gialla (10-100ms)**: Attenzione, query lenta
+- **Durata Rossa (>100ms)**: Query molto lenta, investigare
+
+### Filtri Disponibili
+
+#### Filtro Comandi
+```
+GET       - Solo comandi GET
+HGET      - Solo comandi HGET
+SET,DEL   - Multipli comandi
+```
+
+#### Pattern Ricerca Chiavi
+```
+*              - Tutte le chiavi
+wp_*           - Chiavi che iniziano con wp_
+*:posts:*      - Chiavi contenenti :posts:
+*session*      - Chiavi contenenti session
+```
+
+## Esplora Chiavi Redis
+
+### Come Cercare
+
+1. Vai alla tab **"Esplora Chiavi"**
+2. Inserisci un pattern (default: `*` per tutte)
+3. Seleziona filtri opzionali (tipo, limite)
+4. Clicca **"Cerca Chiavi"**
+
+### Visualizzare Dettagli
+
+1. Clicca **"Dettagli"** su qualsiasi chiave
+2. Modal mostra:
+   - Metadati (tipo, TTL, memoria, encoding)
+   - Valore formattato (JSON/PHP deserializzato automaticamente)
+
+### Eliminare Chiavi
+
+**ATTENZIONE**: L'eliminazione è irreversibile!
+
+1. Dalla lista: clicca **"Elimina"** sulla riga
+2. Dal modal dettagli: clicca **"Elimina Chiave"**
+3. Conferma l'eliminazione
+
+## Dashboard Monitoring
+
+### Statistiche
 Il plugin mostra in tempo reale:
 
 - **Cache Hits**: Quante volte il dato è stato trovato in cache
 - **Cache Misses**: Quante volte il dato non era in cache
 - **Hit Rate**: Percentuale di successo cache
-  - 🟢 >85% = Eccellente
-  - 🟡 70-85% = Buono
-  - 🔴 <70% = Da ottimizzare
+  - >85% = Eccellente (verde)
+  - 70-85% = Buono (giallo)
+  - <70% = Da ottimizzare (rosso)
 - **Redis Calls**: Numero totale chiamate Redis
 
 ### Azioni Rapide
@@ -149,13 +248,13 @@ Il plugin mostra in tempo reale:
 - **Svuota Cache**: Flush completo Redis
 - **Aggiorna Stats**: Ricarica statistiche
 
-## 🎯 Casi d'Uso Comuni
+## Casi d'Uso Comuni
 
 ### Problema: Carrello WooCommerce Condiviso tra Utenti
 
 **Soluzione:**
 1. Vai alla tab "Preset"
-2. Carica "WooCommerce Ottimizzato"
+2. Carica "WooCommerce Standard"
 3. Salva e Svuota Cache
 4. Test con 2 browser: carrelli devono essere separati
 
@@ -170,14 +269,6 @@ options:3600
 transient:1800
 ```
 3. Salva e monitora memoria Redis
-
-### Problema: Performance Basse su Pagine Specifiche
-
-**Soluzione:**
-1. Vai alla tab "Esclusione Pagine"
-2. Seleziona le pagine problematiche
-3. Oppure aggiungi URL specifici
-4. Salva configurazione
 
 ### Problema: Hit Rate Basso (<70%)
 
@@ -194,7 +285,23 @@ options
 4. Salva e Svuota Cache
 5. Monitora hit rate dopo 10 minuti
 
-## ⚙️ Integrazione con wp-config.php
+### Problema: Identificare Query Lente
+
+**Soluzione:**
+1. Vai alla tab "Monitor Attività"
+2. Scorri alla sezione "Slowlog"
+3. Analizza comandi con durata alta
+4. Pattern comuni problematici: KEYS, SCAN con pattern ampi
+
+### Problema: Trovare Chiavi Specifiche
+
+**Soluzione:**
+1. Vai alla tab "Esplora Chiavi"
+2. Usa pattern specifico: es. `*woocommerce*`
+3. Filtra per tipo se necessario
+4. Ispeziona valori per debug
+
+## Integrazione con wp-config.php
 
 Per massime performance, aggiungi in `wp-config.php`:
 
@@ -219,7 +326,7 @@ $redis_server = array(
 );
 ```
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Plugin Non Appare nel Menu
 
@@ -253,6 +360,31 @@ sudo systemctl start redis
 wp plugin list | grep redis
 ```
 
+### Monitor Attività Non Carica
+
+**Possibili cause:**
+- Redis versione < 4.0 (alcune funzionalità non disponibili)
+- Permessi insufficienti su Redis
+- Timeout connessione
+
+**Soluzione:**
+1. Verifica versione Redis: `redis-cli INFO server | grep redis_version`
+2. Verifica permessi: `redis-cli ACL WHOAMI`
+3. Aumenta timeout in wp-config.php se necessario
+
+### Slowlog Vuoto
+
+**Motivo:** Non ci sono query che superano la soglia
+
+**Verifica configurazione Redis:**
+```bash
+redis-cli CONFIG GET slowlog-log-slower-than
+# Default: 10000 (10ms)
+
+# Per abbassare soglia (es. 1ms):
+redis-cli CONFIG SET slowlog-log-slower-than 1000
+```
+
 ### Configurazioni Non Si Applicano
 
 **Verifica:**
@@ -265,61 +397,64 @@ wp plugin list | grep redis
 2. Clicca "Svuota Cache"
 3. Ricarica pagina e verifica stats
 
-### Hit Rate Sempre 0%
-
-**Problema:** Cache non funziona
-
-**Verifica:**
-```bash
-# Test manuale
-wp eval 'wp_cache_set("test", "value"); echo wp_cache_get("test");'
-# Deve stampare: value
-```
-
-**Soluzione:**
-- Verifica che object-cache.php esista
-- Verifica connessione Redis
-- Controlla log PHP per errori
-
-## 🛡️ Sicurezza
+## Sicurezza
 
 - Tutte le azioni richiedono capability `manage_options`
 - AJAX protetto con nonce
 - Input sanitizzati prima del salvataggio
 - Output escaped nel rendering
+- Eliminazione chiavi richiede conferma
 
-## 🔄 Compatibilità
+## Compatibilità
 
-- ✅ WordPress 5.0+
-- ✅ WP Redis 1.4.7
-- ✅ WooCommerce (tutte le versioni recenti)
-- ✅ WordPress Multisite
-- ✅ PHP 7.4, 8.0, 8.1, 8.2
+- WordPress 5.0+
+- WP Redis 1.4.7+
+- WooCommerce (tutte le versioni recenti)
+- YITH Request a Quote (con preset dedicato)
+- WordPress Multisite
+- PHP 7.4, 8.0, 8.1, 8.2
+- Redis 4.0+ (consigliato per funzionalità complete)
 
-## 📝 Changelog
+## Changelog
+
+### 1.1.0 - 2026-01-18
+- **NUOVO**: Monitor Attività Redis completo
+  - Informazioni server, memoria, client
+  - Statistiche comandi con filtri e grafici
+  - Slowlog con filtri per durata
+  - Auto-refresh ogni 10 secondi
+- **NUOVO**: Esplora Chiavi Redis
+  - Ricerca con pattern wildcard
+  - Filtro per tipo (string, list, set, hash, etc.)
+  - Visualizzazione dettagli chiave
+  - Eliminazione chiavi singole
+  - Paginazione risultati
+- **NUOVO**: Preset YITH Request a Quote
+- Migliorato: Interfaccia responsive
+- Migliorato: Formattazione valori (JSON/PHP deserializzato)
+- Rimosso: Funzionalità esclusione pagine (causava flush inefficiente)
 
 ### 1.0.0 - 2026-01-05
-- 🎉 Release iniziale
-- ✨ Gestione gruppi cache
-- ✨ Esclusione pagine/URL
-- ✨ TTL personalizzati
-- ✨ 4 preset configurazioni
-- ✨ Monitoring real-time
-- ✨ Test connessione Redis
-- ✨ Flush cache con un click
+- Release iniziale
+- Gestione gruppi cache
+- TTL personalizzati
+- 4 preset configurazioni
+- Monitoring real-time
+- Test connessione Redis
+- Flush cache con un click
 
-## 🤝 Contribuire
+## Contribuire
 
 Segnalazioni bug e richieste feature:
 - Apri una issue su GitHub
 - Descrivi il problema in dettaglio
 - Includi screenshot se possibile
 
-## 📄 Licenza
+## Licenza
 
 GPL v2 or later
 
-## ✨ Supporto
+## Supporto
 
 Per supporto:
 1. Verifica la sezione Troubleshooting
@@ -327,32 +462,35 @@ Per supporto:
 3. Testa connessione Redis
 4. Apri issue con dettagli completi
 
-## 🎯 Roadmap
+## Roadmap
 
 - [ ] Export/Import configurazioni
-- [ ] Log attività cache
-- [ ] Grafici performance
+- [ ] Grafici performance storici
 - [ ] Notifiche email errori
 - [ ] WP-CLI commands
 - [ ] REST API endpoints
 - [ ] Configurazione multi-sito avanzata
+- [x] Monitor attività Redis
+- [x] Browser chiavi Redis
 
-## 📸 Screenshots
+## Screenshots
 
-1. **Dashboard**: Overview stato Redis e statistiche
+1. **Dashboard**: Overview stato Redis e statistiche cache
 2. **Gruppi Cache**: Gestione gruppi non persistenti e hash groups
-3. **Esclusione Pagine**: Selezione pagine e URL da escludere
-4. **TTL Custom**: Configurazione scadenze personalizzate
-5. **Preset**: Caricamento rapido configurazioni ottimizzate
+3. **TTL Custom**: Configurazione scadenze personalizzate
+4. **Monitor Attività**: Statistiche comandi e slowlog
+5. **Esplora Chiavi**: Browser e visualizzatore chiavi Redis
+6. **Preset**: Caricamento rapido configurazioni ottimizzate
 
-## 🙏 Crediti
+## Crediti
 
-Sviluppato con ❤️ per la community WordPress
+Sviluppato per la community WordPress
 
 Compatibile con:
 - [WP Redis](https://github.com/pantheon-systems/wp-redis) by Pantheon
 - [WooCommerce](https://woocommerce.com)
+- [YITH Request a Quote](https://yithemes.com)
 
 ---
 
-**Buon caching! 🚀**
+**Buon caching!**
