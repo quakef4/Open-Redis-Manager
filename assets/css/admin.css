@@ -1,0 +1,371 @@
+/**
+ * WP Redis Manager - Admin Styles
+ * 
+ * @package WP_Redis_Manager
+ */
+
+.wp-redis-manager {
+    margin-top: 20px;
+}
+
+.wp-redis-manager h1 {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.wp-redis-version {
+    background: #2271b1;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+/* Status Card */
+.redis-status-card {
+    background: white;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.redis-status-card h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.redis-status-content {
+    display: grid;
+    gap: 20px;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    padding: 15px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #999;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.connected {
+    background: #00a32a;
+}
+
+.status-dot.disconnected {
+    background: #d63638;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.redis-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 15px;
+    background: #f6f7f7;
+    border-radius: 4px;
+    margin-top: 15px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-item strong {
+    color: #646970;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.info-item span {
+    font-size: 16px;
+    color: #1d2327;
+}
+
+.status-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Cache Stats */
+.cache-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-box {
+    background: #f6f7f7;
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.stat-box:hover {
+    border-color: #2271b1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2271b1;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #646970;
+    text-transform: uppercase;
+}
+
+/* Form Sections */
+.settings-section {
+    background: white;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.settings-section h2 {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #dcdcde;
+}
+
+.settings-section h2:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2271b1;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Tabs */
+.nav-tab-wrapper {
+    margin: 20px 0 0 0;
+    border-bottom: 1px solid #c3c4c7;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Pages Checklist */
+.pages-checklist {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #dcdcde;
+    padding: 10px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.pages-checklist label {
+    display: block;
+    padding: 8px;
+    margin: 0;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.pages-checklist label:last-child {
+    border-bottom: none;
+}
+
+.pages-checklist label:hover {
+    background: white;
+}
+
+.page-url {
+    display: block;
+    font-size: 12px;
+    color: #646970;
+    margin-left: 20px;
+}
+
+/* TTL Presets */
+.ttl-presets {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.ttl-presets ul {
+    margin: 10px 0 0 0;
+    padding-left: 20px;
+}
+
+.ttl-presets li {
+    margin: 5px 0;
+}
+
+/* Presets Grid */
+.presets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.preset-card {
+    background: #f6f7f7;
+    border: 2px solid #dcdcde;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.preset-card:hover {
+    border-color: #2271b1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.preset-card h3 {
+    margin: 0 0 10px 0;
+    color: #1d2327;
+}
+
+.preset-card p {
+    margin: 0 0 15px 0;
+    color: #646970;
+    font-size: 14px;
+    min-height: 40px;
+}
+
+.preset-card .button {
+    width: 100%;
+}
+
+/* Notices */
+.notice.inline {
+    margin: 20px 0;
+    padding: 12px;
+}
+
+/* Loading State */
+.button.loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.button.loading:after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #f3f3f3;
+    border-top-color: #2271b1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .cache-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .presets-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-actions {
+        flex-direction: column;
+    }
+    
+    .status-actions .button {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .cache-stats {
+        grid-template-columns: 1fr;
+    }
+}
