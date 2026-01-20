@@ -632,8 +632,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Presets data
 var wpRedisPresets = {
     'yith': {
-        'non_persistent_groups': 'wc_session_id\nwc-session-id\nwoocommerce_session_id\ncart\nwc_cart\nwoocommerce_cart',
-        'redis_hash_groups': 'post_meta\nterm_meta\nuser_meta\nwc_var_prices\nwc_attribute_taxonomies',
+        'non_persistent_groups': 'wc_session_id\nwc-session-id\nwoocommerce_session_id\ncart\nwc_cart\nwoocommerce_cart\nwc_notices\nwoocommerce_notices\nyith_ywraq\nywraq\nyith_ywraq_session\nyith_session\nyith_wcwl\nyith_wl\nrequest_quote\nuser_meta\noptions',
+        'redis_hash_groups': 'post_meta\nterm_meta\nwc_var_prices\nwc_attribute_taxonomies',
         'global_groups': '',
         'custom_ttl': 'posts:3600\nterms:7200'
     },
