@@ -1,19 +1,22 @@
 <?php
 /**
  * Plugin Name: WP Redis Manager
- * Plugin URI: https://github.com/yourusername/wp-redis-manager
- * Description: Interfaccia admin per gestire gruppi cache Redis e pagine specifiche. Compatibile con WP Redis 1.4.7
- * Version: 1.0.0
- * Author: Redis Manager Team
- * Author URI: https://example.com
+ * Plugin URI: https://github.com/quakef4/Wp-redis-manager
+ * Description: Interfaccia admin completa per gestire Redis cache in WordPress. Monitor attività, esplora chiavi, gestione gruppi cache e preset ottimizzati per WooCommerce e YITH.
+ * Version: 1.1.0
+ * Author: Antonino Lumia
+ * Author URI: https://github.com/quakef4
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wp-redis-manager
  * Domain Path: /languages
  * Requires at least: 5.0
  * Requires PHP: 7.4
- * 
+ *
  * @package WP_Redis_Manager
+ * @author Antonino Lumia
+ * @copyright 2024-2026 Antonino Lumia
+ * @license GPL-2.0+
  */
 
 // Previeni accesso diretto

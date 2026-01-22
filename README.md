@@ -1,6 +1,11 @@
 # WP Redis Manager
 
-Un plugin WordPress completo con interfaccia grafica per gestire facilmente la cache Redis e le configurazioni del plugin WP Redis 1.4.7.
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/quakef4/Wp-redis-manager)
+[![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-blue.svg)](https://wordpress.org/)
+[![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)](https://php.net/)
+[![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
+
+Un plugin WordPress completo con interfaccia grafica per gestire facilmente la cache Redis e le configurazioni del plugin WP Redis. Include monitor attività in tempo reale, esplora chiavi, gestione gruppi cache e preset ottimizzati per WooCommerce e YITH.
 
 ## Caratteristiche
 
@@ -482,15 +487,37 @@ Per supporto:
 5. **Esplora Chiavi**: Browser e visualizzatore chiavi Redis
 6. **Preset**: Caricamento rapido configurazioni ottimizzate
 
-## Crediti
+## Autore
 
-Sviluppato per la community WordPress
+**Antonino Lumia**
+
+- GitHub: [https://github.com/quakef4](https://github.com/quakef4)
+- Repository: [https://github.com/quakef4/Wp-redis-manager](https://github.com/quakef4/Wp-redis-manager)
+
+## Contribuire
+
+Le contribuzioni sono benvenute! Per contribuire:
+
+1. Fai un Fork del repository
+2. Crea un branch per la tua feature (`git checkout -b feature/NuovaFeature`)
+3. Committa le modifiche (`git commit -m 'Aggiunge NuovaFeature'`)
+4. Pusha il branch (`git push origin feature/NuovaFeature`)
+5. Apri una Pull Request
+
+Per segnalare bug o richiedere feature:
+- [Apri una Issue su GitHub](https://github.com/quakef4/Wp-redis-manager/issues)
+
+## Crediti
 
 Compatibile con:
 - [WP Redis](https://github.com/pantheon-systems/wp-redis) by Pantheon
 - [WooCommerce](https://woocommerce.com)
 - [YITH Request a Quote](https://yithemes.com)
 
+## Licenza
+
+Questo progetto è rilasciato sotto licenza [GPL v2 or later](https://www.gnu.org/licenses/gpl-2.0.html).
+
 ---
 
-**Buon caching!**
+Sviluppato con ❤️ da [Antonino Lumia](https://github.com/quakef4)
