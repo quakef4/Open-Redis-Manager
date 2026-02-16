@@ -1,11 +1,11 @@
 <?php
 /**
- * WooCommerce integration for Starter Redis Cache.
+ * WooCommerce integration for Open Redis Manager.
  *
  * Automatically configures cache groups for WooCommerce compatibility
  * and handles session isolation between users on multi-domain setups.
  *
- * @package StarterRedisCache
+ * @package OpenRedisManager
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: Starter Redis Cache
- * Plugin URI: https://github.com/developer/starter-redis-cache
+ * Plugin Name: Open Redis Manager
+ * Plugin URI: https://github.com/quakef4/Wp-redis-manager
  * Description: Gestione completa di Redis per WordPress e WooCommerce senza dipendenze da terzi. Ottimizzato per server multi-dominio con 10+ siti.
  * Version: 1.0.2
- * Author: Developer
- * Author URI: https://developer.com
+ * Author: quakef4
+ * Author URI: https://github.com/quakef4
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: starter-redis-cache
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
     add_action( 'admin_notices', function () {
         echo '<div class="notice notice-error"><p>';
-        echo '<strong>Starter Redis Cache:</strong> Richiede PHP 7.4 o superiore. Versione attuale: ' . esc_html( PHP_VERSION );
+        echo '<strong>Open Redis Manager:</strong> Richiede PHP 7.4 o superiore. Versione attuale: ' . esc_html( PHP_VERSION );
         echo '</p></div>';
     } );
     return;
@@ -58,7 +58,7 @@ foreach ( $src_includes as $src_file ) {
     } else {
         // Log missing file but don't crash
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( 'Starter Redis Cache: file mancante - ' . $src_path );
+            error_log( 'Open Redis Manager: file mancante - ' . $src_path );
         }
     }
 }
@@ -111,19 +111,19 @@ function src_deactivate() {
 /**
  * Main plugin class - Singleton pattern.
  */
-final class Starter_Redis_Cache {
+final class Open_Redis_Manager {
 
     /**
      * Single instance.
      *
-     * @var Starter_Redis_Cache|null
+     * @var Open_Redis_Manager|null
      */
     private static $instance = null;
 
     /**
      * Get singleton instance.
      *
-     * @return Starter_Redis_Cache
+     * @return Open_Redis_Manager
      */
     public static function get_instance() {
         if ( null === self::$instance ) {
@@ -278,5 +278,5 @@ final class Starter_Redis_Cache {
 // Initialize plugin on plugins_loaded.
 // ============================================================================
 add_action( 'plugins_loaded', function () {
-    Starter_Redis_Cache::get_instance();
+    Open_Redis_Manager::get_instance();
 }, 1 );

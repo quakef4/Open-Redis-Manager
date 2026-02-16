@@ -1,10 +1,10 @@
 /**
- * Starter Redis Cache - Admin JavaScript
+ * Open Redis Manager - Admin JavaScript
  *
  * Handles all admin interface interactions: tabs, AJAX calls,
  * activity monitoring, key exploration, and preset management.
  *
- * @package StarterRedisCache
+ * @package OpenRedisManager
  */
 (function ($) {
     'use strict';

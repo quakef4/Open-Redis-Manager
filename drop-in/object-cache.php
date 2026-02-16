@@ -1,6 +1,6 @@
 <?php
 /**
- * Object Cache Drop-in for Starter Redis Cache
+ * Object Cache Drop-in for Open Redis Manager
  *
  * Provides a complete WP_Object_Cache implementation using Redis via phpredis.
  * No third-party dependencies required - connects directly to Redis server.
@@ -22,7 +22,7 @@
  *   Each site's wp-config.php should define a unique SRC_REDIS_DATABASE (0-9)
  *   or a unique SRC_REDIS_PREFIX to isolate keys.
  *
- * @package StarterRedisCache
+ * @package OpenRedisManager
  * @version 1.0.0
  */
 
@@ -36,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 if ( ! class_exists( 'Redis' ) ) {
     if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-        error_log( 'Starter Redis Cache: phpredis extension not found. Falling back to default object cache.' );
+        error_log( 'Open Redis Manager: phpredis extension not found. Falling back to default object cache.' );
     }
     return;
 }
@@ -262,7 +262,7 @@ class WP_Object_Cache {
         $this->errors[]        = $e->getMessage();
 
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( 'Starter Redis Cache: ' . $e->getMessage() );
+            error_log( 'Open Redis Manager: ' . $e->getMessage() );
         }
     }
 
@@ -1008,7 +1008,7 @@ class WP_Object_Cache {
         $total = $this->cache_hits + $this->cache_misses;
         $rate  = $total > 0 ? round( ( $this->cache_hits / $total ) * 100, 1 ) : 0;
 
-        echo '<h3>Starter Redis Cache Statistics</h3>';
+        echo '<h3>Open Redis Manager Statistics</h3>';
         echo '<p>';
         echo "Redis Connected: " . ( $this->redis_connected ? 'Yes' : 'No' ) . '<br>';
         echo "Cache Hits: {$this->cache_hits}<br>";

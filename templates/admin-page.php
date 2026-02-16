@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin page template for Starter Redis Cache.
+ * Admin page template for Open Redis Manager.
  *
- * @package StarterRedisCache
+ * @package OpenRedisManager
  * @var array $settings Plugin settings.
  * @var array $status   Drop-in status.
  */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="wrap src-wrap">
 
     <h1 class="src-title">
-        Starter Redis Cache
+        Open Redis Manager
         <span class="src-version">v<?php echo esc_html( SRC_VERSION ); ?></span>
     </h1>
 
@@ -39,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <?php elseif ( $status['is_foreign'] ) : ?>
                 <div class="src-alert src-alert-warning">
                     <strong>Drop-in esterno rilevato:</strong> <?php echo esc_html( $status['foreign_info'] ?? 'Sconosciuto' ); ?>
-                    <br>Rimuovi il drop-in esistente prima di attivare Starter Redis Cache.
+                    <br>Rimuovi il drop-in esistente prima di attivare Open Redis Manager.
                 </div>
             <?php elseif ( ! $status['installed'] ) : ?>
                 <div class="src-alert src-alert-info">

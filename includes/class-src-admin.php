@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin interface and AJAX handlers for Starter Redis Cache.
+ * Admin interface and AJAX handlers for Open Redis Manager.
  *
- * @package StarterRedisCache
+ * @package OpenRedisManager
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -47,8 +47,8 @@ class SRC_Admin {
      */
     public function add_admin_menu() {
         add_management_page(
-            __( 'Starter Redis Cache', 'starter-redis-cache' ),
-            __( 'Redis Cache', 'starter-redis-cache' ),
+            __( 'Open Redis Manager', 'starter-redis-cache' ),
+            __( 'Redis Manager', 'starter-redis-cache' ),
             'manage_options',
             'starter-redis-cache',
             array( $this, 'render_admin_page' )
@@ -178,7 +178,7 @@ class SRC_Admin {
         // Check phpredis
         if ( ! class_exists( 'Redis' ) ) {
             echo '<div class="notice notice-error"><p>';
-            echo '<strong>Starter Redis Cache:</strong> ';
+            echo '<strong>Open Redis Manager:</strong> ';
             echo esc_html__( 'L\'estensione PHP phpredis non è installata. Il plugin richiede phpredis per funzionare.', 'starter-redis-cache' );
             echo '</p></div>';
             return;
@@ -189,7 +189,7 @@ class SRC_Admin {
             $screen = get_current_screen();
             if ( $screen && $screen->id !== 'tools_page_starter-redis-cache' ) {
                 echo '<div class="notice notice-warning"><p>';
-                echo '<strong>Starter Redis Cache:</strong> ';
+                echo '<strong>Open Redis Manager:</strong> ';
                 printf(
                     esc_html__( 'Il drop-in object-cache.php non è installato. %sVai alle impostazioni%s per installarlo.', 'starter-redis-cache' ),
                     '<a href="' . esc_url( admin_url( 'tools.php?page=starter-redis-cache' ) ) . '">',
@@ -202,8 +202,8 @@ class SRC_Admin {
         // Check if foreign drop-in exists
         if ( $dropin->is_foreign_dropin() ) {
             echo '<div class="notice notice-warning"><p>';
-            echo '<strong>Starter Redis Cache:</strong> ';
-            echo esc_html__( 'Un altro drop-in object-cache.php è già installato. Rimuovilo prima di attivare Starter Redis Cache.', 'starter-redis-cache' );
+            echo '<strong>Open Redis Manager:</strong> ';
+            echo esc_html__( 'Un altro drop-in object-cache.php è già installato. Rimuovilo prima di attivare Open Redis Manager.', 'starter-redis-cache' );
             echo '</p></div>';
         }
     }
@@ -874,7 +874,7 @@ class SRC_Admin {
 
         if ( ! $dropin->is_our_dropin() ) {
             wp_send_json_error( array(
-                'message' => 'Il drop-in installato non appartiene a Starter Redis Cache.',
+                'message' => 'Il drop-in installato non appartiene a Open Redis Manager.',
             ) );
         }
 

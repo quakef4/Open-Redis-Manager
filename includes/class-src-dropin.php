@@ -5,7 +5,7 @@
  * Handles installing, updating, and removing the object-cache.php
  * drop-in from wp-content/.
  *
- * @package StarterRedisCache
+ * @package OpenRedisManager
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -112,7 +112,8 @@ class SRC_Dropin {
             return false;
         }
 
-        return strpos( $content, 'Starter Redis Cache' ) !== false;
+        return strpos( $content, 'Open Redis Manager' ) !== false
+            || strpos( $content, 'Starter Redis Cache' ) !== false;
     }
 
     /**

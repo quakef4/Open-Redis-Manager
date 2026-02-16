@@ -5,7 +5,7 @@
  * Safely injects and updates Redis configuration constants without
  * corrupting the wp-config.php file.
  *
- * @package StarterRedisCache
+ * @package OpenRedisManager
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -142,17 +142,13 @@ class SRC_Config {
         // Build the constants block
         $block = $this->build_constants_block( $values );
 
-        // Check if our block already exists
-        $start_marker = '/* BEGIN Starter Redis Cache */';
-        $end_marker   = '/* END Starter Redis Cache */';
+        // Check if our block already exists (support legacy marker for upgrades)
+        $markers = $this->find_block_markers( $content );
 
-        $start_pos = strpos( $content, $start_marker );
-        $end_pos   = strpos( $content, $end_marker );
-
-        if ( $start_pos !== false && $end_pos !== false ) {
+        if ( $markers !== false ) {
             // Replace existing block
-            $before  = substr( $content, 0, $start_pos );
-            $after   = substr( $content, $end_pos + strlen( $end_marker ) );
+            $before  = substr( $content, 0, $markers['start_pos'] );
+            $after   = substr( $content, $markers['end_pos'] + $markers['end_len'] );
             $content = $before . $block . $after;
         } else {
             // Insert before "That's all, stop editing!" or before the require_once wp-settings.php
@@ -199,19 +195,15 @@ class SRC_Config {
             return 'Impossibile leggere wp-config.php.';
         }
 
-        $start_marker = '/* BEGIN Starter Redis Cache */';
-        $end_marker   = '/* END Starter Redis Cache */';
+        $markers = $this->find_block_markers( $content );
 
-        $start_pos = strpos( $content, $start_marker );
-        $end_pos   = strpos( $content, $end_marker );
-
-        if ( $start_pos === false || $end_pos === false ) {
+        if ( $markers === false ) {
             return true; // Nothing to remove
         }
 
         // Remove the block plus any trailing newlines
-        $before  = rtrim( substr( $content, 0, $start_pos ) ) . "\n\n";
-        $after   = ltrim( substr( $content, $end_pos + strlen( $end_marker ) ) );
+        $before  = rtrim( substr( $content, 0, $markers['start_pos'] ) ) . "\n\n";
+        $after   = ltrim( substr( $content, $markers['end_pos'] + $markers['end_len'] ) );
         $content = $before . $after;
 
         $result = file_put_contents( $this->config_path, $content );
@@ -234,7 +226,7 @@ class SRC_Config {
      */
     private function build_constants_block( $values ) {
         $lines = array();
-        $lines[] = '/* BEGIN Starter Redis Cache */';
+        $lines[] = '/* BEGIN Open Redis Manager */';
 
         foreach ( self::$constants as $name => $info ) {
             if ( ! isset( $values[ $name ] ) ) {
@@ -252,7 +244,7 @@ class SRC_Config {
             $lines[]   = "define( '{$name}', {$php_value} );";
         }
 
-        $lines[] = '/* END Starter Redis Cache */';
+        $lines[] = '/* END Open Redis Manager */';
 
         return implode( "\n", $lines );
     }
@@ -369,7 +361,38 @@ class SRC_Config {
         }
 
         $content = file_get_contents( $this->config_path );
-        return strpos( $content, '/* BEGIN Starter Redis Cache */' ) !== false;
+        return $this->find_block_markers( $content ) !== false;
+    }
+
+    /**
+     * Find our config block markers in wp-config.php content.
+     *
+     * Supports both the current and legacy marker names for backward
+     * compatibility with existing installations.
+     *
+     * @param string $content wp-config.php content.
+     * @return array|false Array with start_pos, end_pos, end_len on success, false if not found.
+     */
+    private function find_block_markers( $content ) {
+        $marker_sets = array(
+            array( '/* BEGIN Open Redis Manager */', '/* END Open Redis Manager */' ),
+            array( '/* BEGIN Starter Redis Cache */', '/* END Starter Redis Cache */' ),
+        );
+
+        foreach ( $marker_sets as $set ) {
+            $start_pos = strpos( $content, $set[0] );
+            $end_pos   = strpos( $content, $set[1] );
+
+            if ( $start_pos !== false && $end_pos !== false ) {
+                return array(
+                    'start_pos' => $start_pos,
+                    'end_pos'   => $end_pos,
+                    'end_len'   => strlen( $set[1] ),
+                );
+            }
+        }
+
+        return false;
     }
 
     /**
