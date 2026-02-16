@@ -420,35 +420,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <?php $cv = $config_state['values']; ?>
 
-                <div class="src-config-form" id="src-config-form">
+                <div class="src-config-form" id="src-config-form" autocomplete="off">
                     <div class="src-config-grid">
                         <div class="src-config-field">
                             <label for="cfg-host">Host Redis</label>
                             <input type="text" id="cfg-host" name="SRC_REDIS_HOST"
                                 value="<?php echo esc_attr( $cv['SRC_REDIS_HOST'] ); ?>"
-                                placeholder="127.0.0.1" class="regular-text">
+                                placeholder="127.0.0.1" class="regular-text"
+                                autocomplete="off" data-lpignore="true" data-1p-ignore="true">
                         </div>
 
                         <div class="src-config-field">
                             <label for="cfg-port">Porta</label>
                             <input type="number" id="cfg-port" name="SRC_REDIS_PORT"
                                 value="<?php echo esc_attr( $cv['SRC_REDIS_PORT'] ); ?>"
-                                min="1" max="65535" class="small-text">
+                                min="1" max="65535" class="small-text"
+                                autocomplete="off">
                         </div>
 
                         <div class="src-config-field">
                             <label for="cfg-socket">Unix Socket <span class="src-optional">(opzionale, sovrascrive host/port)</span></label>
                             <input type="text" id="cfg-socket" name="SRC_REDIS_SOCKET"
                                 value="<?php echo esc_attr( $cv['SRC_REDIS_SOCKET'] ); ?>"
-                                placeholder="/var/run/redis/redis.sock" class="regular-text">
+                                placeholder="/var/run/redis/redis.sock" class="regular-text"
+                                autocomplete="off" data-lpignore="true" data-1p-ignore="true">
                         </div>
 
                         <div class="src-config-field">
                             <label for="cfg-password">Password <span class="src-optional">(opzionale)</span></label>
-                            <input type="password" id="cfg-password" name="SRC_REDIS_PASSWORD"
+                            <input type="text" id="cfg-password" name="SRC_REDIS_PASSWORD"
                                 value="<?php echo esc_attr( $cv['SRC_REDIS_PASSWORD'] ); ?>"
-                                placeholder="Lascia vuoto se non richiesta" class="regular-text"
-                                autocomplete="off">
+                                placeholder="Lascia vuoto se non richiesta" class="regular-text src-password-field"
+                                autocomplete="new-password" data-lpignore="true" data-1p-ignore="true">
                         </div>
 
                         <div class="src-config-field">
@@ -457,7 +460,8 @@ if ( ! defined( 'ABSPATH' ) ) {
                             </label>
                             <input type="number" id="cfg-database" name="SRC_REDIS_DATABASE"
                                 value="<?php echo esc_attr( $cv['SRC_REDIS_DATABASE'] ); ?>"
-                                min="0" max="15" class="small-text">
+                                min="0" max="15" class="small-text"
+                                autocomplete="off">
                         </div>
 
                         <div class="src-config-field">
@@ -467,7 +471,8 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <input type="text" id="cfg-prefix" name="SRC_REDIS_PREFIX"
                                 value="<?php echo esc_attr( $cv['SRC_REDIS_PREFIX'] ); ?>"
                                 placeholder="<?php echo esc_attr( $GLOBALS['table_prefix'] ?? 'wp_' ); ?>"
-                                class="regular-text">
+                                class="regular-text"
+                                autocomplete="off" data-lpignore="true" data-1p-ignore="true">
                         </div>
 
                         <div class="src-config-field">

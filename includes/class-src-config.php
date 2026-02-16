@@ -400,6 +400,19 @@ class SRC_Config {
             }
         }
 
+        // Validate host: must be IP or hostname, not an email
+        if ( isset( $sanitized['SRC_REDIS_HOST'] ) ) {
+            $host = trim( $sanitized['SRC_REDIS_HOST'] );
+            // Reject email addresses (browser autofill protection)
+            if ( strpos( $host, '@' ) !== false ) {
+                $sanitized['SRC_REDIS_HOST'] = '127.0.0.1';
+            }
+            // Reject empty or whitespace-only
+            if ( $host === '' ) {
+                $sanitized['SRC_REDIS_HOST'] = '127.0.0.1';
+            }
+        }
+
         // Validate database range
         if ( isset( $sanitized['SRC_REDIS_DATABASE'] ) ) {
             $sanitized['SRC_REDIS_DATABASE'] = max( 0, min( 15, $sanitized['SRC_REDIS_DATABASE'] ) );

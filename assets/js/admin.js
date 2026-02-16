@@ -731,9 +731,29 @@
         },
 
         /**
+         * Validate config form values before saving.
+         */
+        validateConfig: function () {
+            var host = $('#cfg-host').val().trim();
+            if (!host) {
+                SRC.showNotice('Host Redis obbligatorio.', 'error');
+                $('#cfg-host').focus();
+                return false;
+            }
+            if (host.indexOf('@') !== -1) {
+                SRC.showNotice('Il campo Host contiene un indirizzo email. Inserisci un IP o hostname (es. 127.0.0.1).', 'error');
+                $('#cfg-host').val('127.0.0.1').focus();
+                return false;
+            }
+            return true;
+        },
+
+        /**
          * Save configuration to wp-config.php.
          */
         saveConfig: function () {
+            if (!SRC.validateConfig()) return;
+
             var $btn = $('#src-save-config');
             var $status = $('#src-config-status');
             $btn.prop('disabled', true);
@@ -762,6 +782,8 @@
          * Test connection with current form values (before saving).
          */
         testConfig: function () {
+            if (!SRC.validateConfig()) return;
+
             var $btn = $('#src-test-config');
             var $status = $('#src-config-status');
             $btn.prop('disabled', true);

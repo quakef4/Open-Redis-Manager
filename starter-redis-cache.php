@@ -3,7 +3,7 @@
  * Plugin Name: Starter Redis Cache
  * Plugin URI: https://github.com/developer/starter-redis-cache
  * Description: Gestione completa di Redis per WordPress e WooCommerce senza dipendenze da terzi. Ottimizzato per server multi-dominio con 10+ siti.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Developer
  * Author URI: https://developer.com
  * License: GPL v2 or later
@@ -29,7 +29,7 @@ if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 }
 
 // Plugin constants
-define( 'SRC_VERSION', '1.0.1' );
+define( 'SRC_VERSION', '1.0.2' );
 define( 'SRC_PLUGIN_FILE', __FILE__ );
 define( 'SRC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SRC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

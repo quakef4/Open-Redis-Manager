@@ -995,6 +995,12 @@
     max-width: 100%;
 }
 
+/* Mask password field (uses type=text to prevent browser autofill) */
+.src-config-field input.src-password-field {
+    -webkit-text-security: disc;
+    text-security: disc;
+}
+
 .src-config-field .src-optional {
     font-weight: normal;
     color: #787c82;
