@@ -580,8 +580,10 @@ class SRC_Admin {
 
         try {
             $keys       = array();
-            $scan_cursor = (int) $cursor;
-            $iterations  = 0;
+            // phpredis requires NULL for the initial SCAN call.
+            // Passing 0 makes phpredis think the scan is already complete.
+            $scan_cursor    = ( '0' === $cursor || '' === $cursor ) ? null : (int) $cursor;
+            $iterations     = 0;
             $max_iterations = 100;
 
             do {
