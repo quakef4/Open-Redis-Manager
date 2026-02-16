@@ -271,8 +271,14 @@ class SRC_Config {
 
         $default = self::$constants[ $name ]['default'];
 
-        // SRC_REDIS_HOST and SRC_REDIS_PORT should always be written
-        if ( $name === 'SRC_REDIS_HOST' || $name === 'SRC_REDIS_PORT' ) {
+        // Critical constants should always be written
+        $always_write = array(
+            'SRC_REDIS_HOST',
+            'SRC_REDIS_PORT',
+            'SRC_REDIS_DATABASE',
+            'SRC_REDIS_PREFIX',
+        );
+        if ( in_array( $name, $always_write, true ) ) {
             return false;
         }
 
@@ -411,6 +417,12 @@ class SRC_Config {
             if ( $host === '' ) {
                 $sanitized['SRC_REDIS_HOST'] = '127.0.0.1';
             }
+        }
+
+        // Auto-populate prefix with $table_prefix if left empty
+        if ( isset( $sanitized['SRC_REDIS_PREFIX'] ) && $sanitized['SRC_REDIS_PREFIX'] === '' ) {
+            global $table_prefix;
+            $sanitized['SRC_REDIS_PREFIX'] = isset( $table_prefix ) ? $table_prefix : 'wp_';
         }
 
         // Validate database range
