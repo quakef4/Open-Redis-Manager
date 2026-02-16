@@ -499,9 +499,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <div class="src-config-field">
                             <label for="cfg-serializer">Serializer</label>
                             <select id="cfg-serializer" name="SRC_REDIS_SERIALIZER">
-                                <option value="auto" <?php selected( $cv['SRC_REDIS_SERIALIZER'], 'auto' ); ?>>Auto (igbinary se disponibile)</option>
-                                <option value="php" <?php selected( $cv['SRC_REDIS_SERIALIZER'], 'php' ); ?>>PHP serialize</option>
-                                <option value="igbinary" <?php selected( $cv['SRC_REDIS_SERIALIZER'], 'igbinary' ); ?>>igbinary</option>
+                                <option value="php" <?php selected( $cv['SRC_REDIS_SERIALIZER'], 'php' ); ?>>PHP serialize (consigliato)</option>
+                                <option value="igbinary" <?php selected( $cv['SRC_REDIS_SERIALIZER'], 'igbinary' ); ?>>igbinary (richiede estensione su tutti i SAPI)</option>
+                                <option value="auto" <?php selected( $cv['SRC_REDIS_SERIALIZER'], 'auto' ); ?>>Auto (non consigliato)</option>
                             </select>
                         </div>
 

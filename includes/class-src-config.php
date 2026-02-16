@@ -37,7 +37,7 @@ class SRC_Config {
         'SRC_REDIS_TIMEOUT'      => array( 'default' => 1,           'type' => 'float',   'label' => 'Timeout connessione (s)' ),
         'SRC_REDIS_READ_TIMEOUT' => array( 'default' => 1,           'type' => 'float',   'label' => 'Timeout lettura (s)' ),
         'SRC_REDIS_DISABLED'     => array( 'default' => false,       'type' => 'bool',    'label' => 'Disabilita Redis' ),
-        'SRC_REDIS_SERIALIZER'   => array( 'default' => 'auto',      'type' => 'string',  'label' => 'Serializer' ),
+        'SRC_REDIS_SERIALIZER'   => array( 'default' => 'php',       'type' => 'string',  'label' => 'Serializer' ),
     );
 
     /**

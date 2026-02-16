@@ -15,7 +15,7 @@
  *   SRC_REDIS_TIMEOUT       - Connection timeout seconds (default: 1)
  *   SRC_REDIS_READ_TIMEOUT  - Read timeout seconds (default: 1)
  *   SRC_REDIS_DISABLED      - Disable Redis, use memory only (default: false)
- *   SRC_REDIS_SERIALIZER    - 'php' or 'igbinary' (default: auto-detect)
+ *   SRC_REDIS_SERIALIZER    - 'php' or 'igbinary' (default: 'php')
  *   SRC_REDIS_SOCKET        - Unix socket path (overrides host/port)
  *
  * Multi-domain setup (10 sites example):
@@ -180,8 +180,10 @@ class WP_Object_Cache {
             $this->key_prefix = 'wp_';
         }
 
-        // Check serializer preference
-        $serializer = defined( 'SRC_REDIS_SERIALIZER' ) ? SRC_REDIS_SERIALIZER : 'auto';
+        // Check serializer preference.
+        // Default to 'php' for consistency across SAPI (FPM vs CLI).
+        // 'auto' is kept for backward compat but not recommended.
+        $serializer = defined( 'SRC_REDIS_SERIALIZER' ) ? SRC_REDIS_SERIALIZER : 'php';
         if ( $serializer === 'igbinary' || ( $serializer === 'auto' && function_exists( 'igbinary_serialize' ) ) ) {
             $this->use_igbinary = true;
         }
