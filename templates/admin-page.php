@@ -442,7 +442,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <label for="cfg-socket">Unix Socket <span class="src-optional">(opzionale, sovrascrive host/port)</span></label>
                             <input type="text" id="cfg-socket" name="SRC_REDIS_SOCKET"
                                 value="<?php echo esc_attr( $cv['SRC_REDIS_SOCKET'] ); ?>"
-                                placeholder="/var/run/redis/redis.sock" class="regular-text"
+                                placeholder="es. /var/run/redis/redis-server.sock" class="regular-text"
                                 autocomplete="off" data-lpignore="true" data-1p-ignore="true">
                         </div>
 
@@ -554,10 +554,11 @@ define( 'SRC_REDIS_PREFIX', 'dom1_' );  // univoco per sito</code></pre>
                 </div>
 
                 <div class="src-config-block">
-                    <h4>Connessione Unix Socket (pi&ugrave; veloce su server locale)</h4>
-                    <pre class="src-code-block"><code>// Nel campo "Unix Socket" sopra inserisci:
-// /var/run/redis/redis.sock
-// Questo bypassa TCP ed &egrave; ~20% pi&ugrave; veloce</code></pre>
+                    <h4>Connessione Unix Socket (opzionale)</h4>
+                    <pre class="src-code-block"><code>// Solo se Redis &egrave; configurato con unixsocket in redis.conf.
+// Verifica il path con: sudo grep "unixsocket" /etc/redis/redis.conf
+// Esempio: /var/run/redis/redis-server.sock
+// Nella maggior parte dei casi TCP 127.0.0.1:6379 &egrave; sufficiente.</code></pre>
                 </div>
             </div>
         </div>
