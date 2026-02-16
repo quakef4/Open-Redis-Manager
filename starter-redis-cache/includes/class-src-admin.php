@@ -32,6 +32,9 @@ class SRC_Admin {
             'src_install_dropin',
             'src_uninstall_dropin',
             'src_flush_group',
+            'src_save_config',
+            'src_test_config',
+            'src_remove_config',
         );
 
         foreach ( $ajax_actions as $action ) {
@@ -145,9 +148,19 @@ class SRC_Admin {
             return;
         }
 
-        $settings = Starter_Redis_Cache::get_settings();
-        $dropin   = new SRC_Dropin();
-        $status   = $dropin->get_status();
+        $settings     = Starter_Redis_Cache::get_settings();
+        $dropin       = new SRC_Dropin();
+        $status       = $dropin->get_status();
+        $config       = new SRC_Config();
+        $config_state = array(
+            'writable'      => $config->is_writable(),
+            'readable'      => $config->is_readable(),
+            'has_block'     => $config->has_managed_block(),
+            'has_constants' => $config->has_constants(),
+            'path'          => $config->get_path(),
+            'values'        => $config->get_current_values(),
+            'constants'     => SRC_Config::get_constants_info(),
+        );
 
         include SRC_PLUGIN_DIR . 'templates/admin-page.php';
     }
@@ -852,6 +865,98 @@ class SRC_Admin {
         } else {
             wp_send_json_error( array(
                 'message' => 'Errore durante la rimozione del drop-in.',
+            ) );
+        }
+    }
+
+    // =========================================================================
+    // AJAX: wp-config.php Management
+    // =========================================================================
+
+    /**
+     * Save Redis configuration to wp-config.php.
+     */
+    public function src_save_config() {
+        check_ajax_referer( 'src_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Permesso negato' );
+        }
+
+        $raw_values = isset( $_POST['config'] ) ? $_POST['config'] : array();
+        if ( ! is_array( $raw_values ) ) {
+            wp_send_json_error( 'Dati non validi' );
+        }
+
+        $values = SRC_Config::sanitize_values( $raw_values );
+
+        $config = new SRC_Config();
+
+        if ( ! $config->is_writable() ) {
+            wp_send_json_error( array(
+                'message' => 'wp-config.php non è scrivibile. Controlla i permessi (' . $config->get_path() . ').',
+            ) );
+        }
+
+        $result = $config->update_constants( $values );
+
+        if ( $result === true ) {
+            wp_send_json_success( array(
+                'message' => 'Configurazione salvata in wp-config.php. Ricarica la pagina per applicare.',
+                'values'  => $values,
+            ) );
+        } else {
+            wp_send_json_error( array(
+                'message' => $result,
+            ) );
+        }
+    }
+
+    /**
+     * Test Redis connection with provided parameters (before saving).
+     */
+    public function src_test_config() {
+        check_ajax_referer( 'src_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Permesso negato' );
+        }
+
+        $raw_values = isset( $_POST['config'] ) ? $_POST['config'] : array();
+        if ( ! is_array( $raw_values ) ) {
+            wp_send_json_error( 'Dati non validi' );
+        }
+
+        $values = SRC_Config::sanitize_values( $raw_values );
+        $result = SRC_Config::test_connection( $values );
+
+        if ( $result['success'] ) {
+            wp_send_json_success( $result );
+        } else {
+            wp_send_json_error( $result );
+        }
+    }
+
+    /**
+     * Remove SRC constants from wp-config.php.
+     */
+    public function src_remove_config() {
+        check_ajax_referer( 'src_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Permesso negato' );
+        }
+
+        $config = new SRC_Config();
+        $result = $config->remove_constants();
+
+        if ( $result === true ) {
+            wp_send_json_success( array(
+                'message' => 'Configurazione rimossa da wp-config.php.',
+            ) );
+        } else {
+            wp_send_json_error( array(
+                'message' => $result,
             ) );
         }
     }

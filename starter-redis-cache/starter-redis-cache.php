@@ -85,6 +85,7 @@ final class Starter_Redis_Cache {
      */
     private function load_includes() {
         require_once SRC_PLUGIN_DIR . 'includes/class-src-dropin.php';
+        require_once SRC_PLUGIN_DIR . 'includes/class-src-config.php';
         require_once SRC_PLUGIN_DIR . 'includes/class-src-admin.php';
         require_once SRC_PLUGIN_DIR . 'includes/class-src-woocommerce.php';
     }

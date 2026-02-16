@@ -399,82 +399,160 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <!-- Tab: Configuration -->
         <div class="src-tab-content" id="tab-config">
+
+            <!-- Interactive Config Form -->
             <div class="src-section">
-                <h3>Configurazione wp-config.php</h3>
+                <h3>Connessione Redis</h3>
                 <p class="description">
-                    Aggiungi queste costanti al tuo <code>wp-config.php</code> per configurare la connessione Redis.
-                    Ogni sito sul server deve avere un proprio database o prefisso univoco.
+                    Configura la connessione Redis. Le impostazioni verranno salvate automaticamente in
+                    <code><?php echo esc_html( $config_state['path'] ?: 'wp-config.php' ); ?></code>.
+                    <?php if ( $config_state['has_block'] ) : ?>
+                        <span class="src-config-active">Configurazione attiva nel file.</span>
+                    <?php endif; ?>
+                </p>
+
+                <?php if ( ! $config_state['writable'] ) : ?>
+                    <div class="src-alert src-alert-warning">
+                        <strong>wp-config.php non &egrave; scrivibile.</strong>
+                        Modifica i permessi del file oppure copia manualmente le costanti mostrate in fondo alla pagina.
+                    </div>
+                <?php endif; ?>
+
+                <?php $cv = $config_state['values']; ?>
+
+                <div class="src-config-form" id="src-config-form">
+                    <div class="src-config-grid">
+                        <div class="src-config-field">
+                            <label for="cfg-host">Host Redis</label>
+                            <input type="text" id="cfg-host" name="SRC_REDIS_HOST"
+                                value="<?php echo esc_attr( $cv['SRC_REDIS_HOST'] ); ?>"
+                                placeholder="127.0.0.1" class="regular-text">
+                        </div>
+
+                        <div class="src-config-field">
+                            <label for="cfg-port">Porta</label>
+                            <input type="number" id="cfg-port" name="SRC_REDIS_PORT"
+                                value="<?php echo esc_attr( $cv['SRC_REDIS_PORT'] ); ?>"
+                                min="1" max="65535" class="small-text">
+                        </div>
+
+                        <div class="src-config-field">
+                            <label for="cfg-socket">Unix Socket <span class="src-optional">(opzionale, sovrascrive host/port)</span></label>
+                            <input type="text" id="cfg-socket" name="SRC_REDIS_SOCKET"
+                                value="<?php echo esc_attr( $cv['SRC_REDIS_SOCKET'] ); ?>"
+                                placeholder="/var/run/redis/redis.sock" class="regular-text">
+                        </div>
+
+                        <div class="src-config-field">
+                            <label for="cfg-password">Password <span class="src-optional">(opzionale)</span></label>
+                            <input type="password" id="cfg-password" name="SRC_REDIS_PASSWORD"
+                                value="<?php echo esc_attr( $cv['SRC_REDIS_PASSWORD'] ); ?>"
+                                placeholder="Lascia vuoto se non richiesta" class="regular-text"
+                                autocomplete="off">
+                        </div>
+
+                        <div class="src-config-field">
+                            <label for="cfg-database">Database (0-15)
+                                <span class="src-optional">- usa un numero diverso per ogni sito</span>
+                            </label>
+                            <input type="number" id="cfg-database" name="SRC_REDIS_DATABASE"
+                                value="<?php echo esc_attr( $cv['SRC_REDIS_DATABASE'] ); ?>"
+                                min="0" max="15" class="small-text">
+                        </div>
+
+                        <div class="src-config-field">
+                            <label for="cfg-prefix">Prefisso chiavi
+                                <span class="src-optional">- univoco per sito (default: $table_prefix)</span>
+                            </label>
+                            <input type="text" id="cfg-prefix" name="SRC_REDIS_PREFIX"
+                                value="<?php echo esc_attr( $cv['SRC_REDIS_PREFIX'] ); ?>"
+                                placeholder="<?php echo esc_attr( $GLOBALS['table_prefix'] ?? 'wp_' ); ?>"
+                                class="regular-text">
+                        </div>
+
+                        <div class="src-config-field">
+                            <label for="cfg-maxttl">TTL Massimo (secondi) <span class="src-optional">- 0 = illimitato</span></label>
+                            <input type="number" id="cfg-maxttl" name="SRC_REDIS_MAXTTL"
+                                value="<?php echo esc_attr( $cv['SRC_REDIS_MAXTTL'] ); ?>"
+                                min="0" class="small-text">
+                        </div>
+
+                        <div class="src-config-field">
+                            <label for="cfg-timeout">Timeout connessione (secondi)</label>
+                            <input type="number" id="cfg-timeout" name="SRC_REDIS_TIMEOUT"
+                                value="<?php echo esc_attr( $cv['SRC_REDIS_TIMEOUT'] ); ?>"
+                                min="0.1" max="30" step="0.1" class="small-text">
+                        </div>
+
+                        <div class="src-config-field">
+                            <label for="cfg-read-timeout">Timeout lettura (secondi)</label>
+                            <input type="number" id="cfg-read-timeout" name="SRC_REDIS_READ_TIMEOUT"
+                                value="<?php echo esc_attr( $cv['SRC_REDIS_READ_TIMEOUT'] ); ?>"
+                                min="0.1" max="30" step="0.1" class="small-text">
+                        </div>
+
+                        <div class="src-config-field">
+                            <label for="cfg-serializer">Serializer</label>
+                            <select id="cfg-serializer" name="SRC_REDIS_SERIALIZER">
+                                <option value="auto" <?php selected( $cv['SRC_REDIS_SERIALIZER'], 'auto' ); ?>>Auto (igbinary se disponibile)</option>
+                                <option value="php" <?php selected( $cv['SRC_REDIS_SERIALIZER'], 'php' ); ?>>PHP serialize</option>
+                                <option value="igbinary" <?php selected( $cv['SRC_REDIS_SERIALIZER'], 'igbinary' ); ?>>igbinary</option>
+                            </select>
+                        </div>
+
+                        <div class="src-config-field">
+                            <label>
+                                <input type="checkbox" id="cfg-disabled" name="SRC_REDIS_DISABLED"
+                                    value="1" <?php checked( $cv['SRC_REDIS_DISABLED'] ); ?>>
+                                Disabilita Redis (usa solo cache in memoria)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="src-config-actions">
+                        <button type="button" class="button button-primary" id="src-save-config"
+                            <?php disabled( ! $config_state['writable'] ); ?>>
+                            Salva in wp-config.php
+                        </button>
+                        <button type="button" class="button" id="src-test-config">
+                            Testa Connessione
+                        </button>
+                        <?php if ( $config_state['has_block'] ) : ?>
+                            <button type="button" class="button src-btn-remove-config" id="src-remove-config">
+                                Rimuovi da wp-config.php
+                            </button>
+                        <?php endif; ?>
+                        <span class="src-config-status" id="src-config-status"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-domain Guide -->
+            <div class="src-section">
+                <h3>Guida Multi-Dominio (10 siti)</h3>
+                <p class="description">
+                    Per isolare la cache tra i siti sullo stesso server, ogni sito deve avere
+                    un database Redis diverso (0-15) e/o un prefisso univoco.
                 </p>
 
                 <div class="src-config-block">
-                    <h4>Sito singolo (configurazione base)</h4>
-                    <pre class="src-code-block"><code>// Starter Redis Cache - Configurazione
-define( 'SRC_REDIS_HOST', '127.0.0.1' );
-define( 'SRC_REDIS_PORT', 6379 );
-define( 'SRC_REDIS_DATABASE', 0 );
-// define( 'SRC_REDIS_PASSWORD', '' );
-// define( 'SRC_REDIS_MAXTTL', 86400 );  // TTL massimo 24h</code></pre>
+                    <h4>Esempio: 10 siti con database separati</h4>
+                    <pre class="src-code-block"><code>// Sito 1 (domain1.com) -> Database 0, Prefisso dom1_
+// Sito 2 (domain2.com) -> Database 1, Prefisso dom2_
+// Sito 3 (domain3.com) -> Database 2, Prefisso dom3_
+// ... fino a ...
+// Sito 10 (domain10.com) -> Database 9, Prefisso dom10_
+
+// In ogni wp-config.php basta cambiare questi due valori:
+define( 'SRC_REDIS_DATABASE', 0 );  // 0-9 per ogni sito
+define( 'SRC_REDIS_PREFIX', 'dom1_' );  // univoco per sito</code></pre>
                 </div>
 
                 <div class="src-config-block">
-                    <h4>Multi-dominio (10 siti con database separati)</h4>
-                    <pre class="src-code-block"><code>// Sito 1 (domain1.com) - wp-config.php
-define( 'SRC_REDIS_HOST', '127.0.0.1' );
-define( 'SRC_REDIS_PORT', 6379 );
-define( 'SRC_REDIS_DATABASE', 0 );
-define( 'SRC_REDIS_PREFIX', 'dom1_' );
-
-// Sito 2 (domain2.com) - wp-config.php
-define( 'SRC_REDIS_HOST', '127.0.0.1' );
-define( 'SRC_REDIS_PORT', 6379 );
-define( 'SRC_REDIS_DATABASE', 1 );
-define( 'SRC_REDIS_PREFIX', 'dom2_' );
-
-// ... fino al Sito 10 (database 9, prefisso dom10_)</code></pre>
-                </div>
-
-                <div class="src-config-block">
-                    <h4>Multi-dominio (10 siti con solo prefisso)</h4>
-                    <pre class="src-code-block"><code>// Alternativa: stesso database, prefissi diversi
-// Sito 1 (domain1.com)
-define( 'SRC_REDIS_HOST', '127.0.0.1' );
-define( 'SRC_REDIS_PORT', 6379 );
-define( 'SRC_REDIS_PREFIX', 'domain1_' );
-
-// Sito 2 (domain2.com)
-define( 'SRC_REDIS_HOST', '127.0.0.1' );
-define( 'SRC_REDIS_PORT', 6379 );
-define( 'SRC_REDIS_PREFIX', 'domain2_' );</code></pre>
-                </div>
-
-                <div class="src-config-block">
-                    <h4>Connessione via Unix Socket (pi&ugrave; veloce)</h4>
-                    <pre class="src-code-block"><code>// Per prestazioni massime su server locale
-define( 'SRC_REDIS_SOCKET', '/var/run/redis/redis.sock' );
-define( 'SRC_REDIS_DATABASE', 0 );
-define( 'SRC_REDIS_PREFIX', 'mysite_' );</code></pre>
-                </div>
-
-                <div class="src-config-block">
-                    <h4>Tutte le costanti disponibili</h4>
-                    <table class="src-config-table">
-                        <thead>
-                            <tr><th>Costante</th><th>Default</th><th>Descrizione</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td><code>SRC_REDIS_HOST</code></td><td>127.0.0.1</td><td>Indirizzo server Redis</td></tr>
-                            <tr><td><code>SRC_REDIS_PORT</code></td><td>6379</td><td>Porta server Redis</td></tr>
-                            <tr><td><code>SRC_REDIS_SOCKET</code></td><td>-</td><td>Percorso Unix socket (sovrascrive host/port)</td></tr>
-                            <tr><td><code>SRC_REDIS_PASSWORD</code></td><td>-</td><td>Password autenticazione Redis</td></tr>
-                            <tr><td><code>SRC_REDIS_DATABASE</code></td><td>0</td><td>Indice database (0-15). Usare uno diverso per sito.</td></tr>
-                            <tr><td><code>SRC_REDIS_PREFIX</code></td><td>$table_prefix</td><td>Prefisso chiavi per isolamento sito</td></tr>
-                            <tr><td><code>SRC_REDIS_MAXTTL</code></td><td>0 (illimitato)</td><td>TTL massimo in secondi</td></tr>
-                            <tr><td><code>SRC_REDIS_TIMEOUT</code></td><td>1</td><td>Timeout connessione (secondi)</td></tr>
-                            <tr><td><code>SRC_REDIS_READ_TIMEOUT</code></td><td>1</td><td>Timeout lettura (secondi)</td></tr>
-                            <tr><td><code>SRC_REDIS_DISABLED</code></td><td>false</td><td>Disabilita Redis (usa solo memoria)</td></tr>
-                            <tr><td><code>SRC_REDIS_SERIALIZER</code></td><td>auto</td><td>'php', 'igbinary' o 'auto'</td></tr>
-                        </tbody>
-                    </table>
+                    <h4>Connessione Unix Socket (pi&ugrave; veloce su server locale)</h4>
+                    <pre class="src-code-block"><code>// Nel campo "Unix Socket" sopra inserisci:
+// /var/run/redis/redis.sock
+// Questo bypassa TCP ed &egrave; ~20% pi&ugrave; veloce</code></pre>
                 </div>
             </div>
         </div>

@@ -959,6 +959,80 @@
     font-size: 12px;
 }
 
+/* Config Form */
+.src-config-active {
+    color: #00a32a;
+    font-weight: 600;
+}
+
+.src-config-form {
+    margin-top: 15px;
+}
+
+.src-config-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.src-config-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.src-config-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.src-config-field input[type="text"],
+.src-config-field input[type="password"],
+.src-config-field input[type="number"],
+.src-config-field select {
+    max-width: 100%;
+}
+
+.src-config-field .src-optional {
+    font-weight: normal;
+    color: #787c82;
+    font-size: 12px;
+}
+
+.src-config-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-top: 15px;
+    border-top: 1px solid #dcdcde;
+}
+
+.src-btn-remove-config {
+    color: #d63638 !important;
+    border-color: #d63638 !important;
+}
+
+.src-btn-remove-config:hover {
+    background: #d63638 !important;
+    color: #fff !important;
+}
+
+.src-config-status {
+    font-size: 13px;
+    color: #787c82;
+}
+
+.src-config-status.src-status-ok {
+    color: #00a32a;
+}
+
+.src-config-status.src-status-err {
+    color: #d63638;
+}
+
 /* =========================================================================
    Responsive
    ========================================================================= */
@@ -975,6 +1049,10 @@
     }
 
     .src-activity-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .src-config-grid {
         grid-template-columns: 1fr;
     }
 

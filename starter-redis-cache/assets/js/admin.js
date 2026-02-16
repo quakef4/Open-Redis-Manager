@@ -104,6 +104,21 @@
                 }
             });
 
+            // wp-config.php management
+            $('#src-save-config').on('click', function () {
+                SRC.saveConfig();
+            });
+
+            $('#src-test-config').on('click', function () {
+                SRC.testConfig();
+            });
+
+            $('#src-remove-config').on('click', function () {
+                if (confirm('Rimuovere la configurazione Redis da wp-config.php?')) {
+                    SRC.removeConfig();
+                }
+            });
+
             // Command stats filters
             $('#src-cmd-filter, #src-cmd-sort, #src-cmd-limit').on('input change', function () {
                 SRC.filterCommands();
@@ -688,6 +703,106 @@
                     setTimeout(function () { location.reload(); }, 1500);
                 } else {
                     SRC.showNotice(response.data.message || srcRedis.i18n.error, 'error');
+                }
+            });
+        },
+
+        // =====================================================================
+        // AJAX: wp-config.php Management
+        // =====================================================================
+
+        /**
+         * Collect config form values into an object.
+         */
+        getConfigValues: function () {
+            var config = {};
+            $('#src-config-form').find('input, select').each(function () {
+                var $el = $(this);
+                var name = $el.attr('name');
+                if (!name) return;
+
+                if ($el.attr('type') === 'checkbox') {
+                    config[name] = $el.is(':checked') ? '1' : '';
+                } else {
+                    config[name] = $el.val();
+                }
+            });
+            return config;
+        },
+
+        /**
+         * Save configuration to wp-config.php.
+         */
+        saveConfig: function () {
+            var $btn = $('#src-save-config');
+            var $status = $('#src-config-status');
+            $btn.prop('disabled', true);
+            $status.text('Salvataggio...').removeClass('src-status-ok src-status-err');
+
+            $.post(srcRedis.ajaxUrl, {
+                action: 'src_save_config',
+                nonce: srcRedis.nonce,
+                config: SRC.getConfigValues()
+            }, function (response) {
+                $btn.prop('disabled', false);
+                if (response.success) {
+                    $status.text(response.data.message).addClass('src-status-ok');
+                    SRC.showNotice(response.data.message, 'success');
+                } else {
+                    $status.text(response.data.message || srcRedis.i18n.error).addClass('src-status-err');
+                    SRC.showNotice(response.data.message || srcRedis.i18n.error, 'error');
+                }
+            }).fail(function () {
+                $btn.prop('disabled', false);
+                $status.text(srcRedis.i18n.error).addClass('src-status-err');
+            });
+        },
+
+        /**
+         * Test connection with current form values (before saving).
+         */
+        testConfig: function () {
+            var $btn = $('#src-test-config');
+            var $status = $('#src-config-status');
+            $btn.prop('disabled', true);
+            $status.text('Test connessione...').removeClass('src-status-ok src-status-err');
+
+            $.post(srcRedis.ajaxUrl, {
+                action: 'src_test_config',
+                nonce: srcRedis.nonce,
+                config: SRC.getConfigValues()
+            }, function (response) {
+                $btn.prop('disabled', false);
+                if (response.success) {
+                    $status.text(response.data.message).addClass('src-status-ok');
+                    SRC.showNotice(response.data.message, 'success');
+                } else {
+                    $status.text(response.data.message || srcRedis.i18n.error).addClass('src-status-err');
+                    SRC.showNotice(response.data.message || srcRedis.i18n.error, 'error');
+                }
+            }).fail(function () {
+                $btn.prop('disabled', false);
+                $status.text(srcRedis.i18n.error).addClass('src-status-err');
+            });
+        },
+
+        /**
+         * Remove SRC constants from wp-config.php.
+         */
+        removeConfig: function () {
+            var $status = $('#src-config-status');
+            $status.text('Rimozione...').removeClass('src-status-ok src-status-err');
+
+            $.post(srcRedis.ajaxUrl, {
+                action: 'src_remove_config',
+                nonce: srcRedis.nonce
+            }, function (response) {
+                if (response.success) {
+                    $status.text(response.data.message).addClass('src-status-ok');
+                    SRC.showNotice(response.data.message, 'success');
+                    setTimeout(function () { location.reload(); }, 1500);
+                } else {
+                    $status.text(response.data.message || srcRedis.i18n.error).addClass('src-status-err');
                 }
             });
         },
