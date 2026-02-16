@@ -33,9 +33,6 @@ class SRC_WooCommerce {
      * Constructor.
      */
     public function __construct() {
-        // Hook early to ensure WooCommerce session groups are always non-persistent
-        add_action( 'plugins_loaded', array( $this, 'enforce_session_isolation' ), 2 );
-
         // WooCommerce-specific hooks
         add_action( 'woocommerce_init', array( $this, 'woocommerce_init' ) );
     }
@@ -43,8 +40,11 @@ class SRC_WooCommerce {
     /**
      * Enforce that WooCommerce session groups are always non-persistent.
      * This prevents the critical "shared cart" bug between users.
+     *
+     * Called directly from the main plugin (not via hook) to ensure
+     * it always runs regardless of hook timing.
      */
-    public function enforce_session_isolation() {
+    public static function enforce_session_isolation() {
         if ( ! function_exists( 'wp_cache_add_non_persistent_groups' ) ) {
             return;
         }
