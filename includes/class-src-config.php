@@ -452,14 +452,33 @@ class SRC_Config {
             );
         }
 
+        $use_socket = ! empty( $values['SRC_REDIS_SOCKET'] );
+
+        // Validate socket file before attempting connection
+        if ( $use_socket ) {
+            $socket_path = $values['SRC_REDIS_SOCKET'];
+            if ( ! file_exists( $socket_path ) ) {
+                return array(
+                    'success' => false,
+                    'message' => "Socket non trovato: {$socket_path}",
+                );
+            }
+            if ( ! is_readable( $socket_path ) || ! is_writable( $socket_path ) ) {
+                return array(
+                    'success' => false,
+                    'message' => "Permessi insufficienti sul socket: {$socket_path} (utente PHP: " . get_current_user() . ')',
+                );
+            }
+        }
+
         try {
             $redis   = new Redis();
             $host    = $values['SRC_REDIS_HOST'] ?: '127.0.0.1';
             $port    = (int) ( $values['SRC_REDIS_PORT'] ?: 6379 );
             $timeout = (float) ( $values['SRC_REDIS_TIMEOUT'] ?: 1.0 );
 
-            if ( ! empty( $values['SRC_REDIS_SOCKET'] ) ) {
-                $redis->connect( $values['SRC_REDIS_SOCKET'], 0, $timeout );
+            if ( $use_socket ) {
+                $redis->connect( $socket_path, 0, $timeout );
             } else {
                 $redis->connect( $host, $port, $timeout );
             }
@@ -479,17 +498,20 @@ class SRC_Config {
 
             $redis->close();
 
+            $via = $use_socket ? "socket {$socket_path}" : "{$host}:{$port}";
+
             return array(
                 'success' => true,
-                'message' => "Connessione riuscita. Redis {$version}, Memoria: {$memory}",
+                'message' => "Connessione riuscita via {$via}. Redis {$version}, Memoria: {$memory}",
                 'version' => $version,
                 'memory'  => $memory,
             );
 
         } catch ( Exception $e ) {
+            $via = $use_socket ? "socket {$socket_path}" : "{$host}:{$port}";
             return array(
                 'success' => false,
-                'message' => 'Connessione fallita: ' . $e->getMessage(),
+                'message' => "Connessione fallita via {$via}: " . $e->getMessage(),
             );
         }
     }

@@ -278,14 +278,31 @@ class SRC_Admin {
                 ) );
             }
 
+            $use_socket = defined( 'SRC_REDIS_SOCKET' ) && SRC_REDIS_SOCKET;
+
+            // Validate socket file before attempting connection
+            if ( $use_socket ) {
+                $socket_path = SRC_REDIS_SOCKET;
+                if ( ! file_exists( $socket_path ) ) {
+                    wp_send_json_error( array(
+                        'message' => "Socket non trovato: {$socket_path}",
+                    ) );
+                }
+                if ( ! is_readable( $socket_path ) || ! is_writable( $socket_path ) ) {
+                    wp_send_json_error( array(
+                        'message' => "Permessi insufficienti sul socket: {$socket_path} (utente PHP: " . get_current_user() . ')',
+                    ) );
+                }
+            }
+
             try {
                 $test_redis = new Redis();
                 $host       = defined( 'SRC_REDIS_HOST' ) ? SRC_REDIS_HOST : '127.0.0.1';
                 $port       = defined( 'SRC_REDIS_PORT' ) ? (int) SRC_REDIS_PORT : 6379;
                 $timeout    = defined( 'SRC_REDIS_TIMEOUT' ) ? (float) SRC_REDIS_TIMEOUT : 1.0;
 
-                if ( defined( 'SRC_REDIS_SOCKET' ) && SRC_REDIS_SOCKET ) {
-                    $test_redis->connect( SRC_REDIS_SOCKET, 0, $timeout );
+                if ( $use_socket ) {
+                    $test_redis->connect( $socket_path, 0, $timeout );
                 } else {
                     $test_redis->connect( $host, $port, $timeout );
                 }
@@ -302,18 +319,21 @@ class SRC_Admin {
                 $info = $test_redis->info();
                 $test_redis->close();
 
+                $via = $use_socket ? "socket {$socket_path}" : "{$host}:{$port}";
+
                 wp_send_json_success( array(
                     'connected' => true,
                     'version'   => $info['redis_version'] ?? 'unknown',
                     'memory'    => $info['used_memory_human'] ?? 'unknown',
                     'uptime'    => $info['uptime_in_seconds'] ?? 0,
                     'dropin'    => false,
-                    'message'   => 'Connessione Redis riuscita (drop-in non attivo)',
+                    'message'   => "Connessione Redis riuscita via {$via} (drop-in non attivo)",
                 ) );
 
             } catch ( Exception $e ) {
+                $via = $use_socket ? 'socket ' . SRC_REDIS_SOCKET : "{$host}:{$port}";
                 wp_send_json_error( array(
-                    'message' => 'Connessione fallita: ' . $e->getMessage(),
+                    'message' => "Connessione fallita via {$via}: " . $e->getMessage(),
                 ) );
             }
         }
