@@ -475,24 +475,8 @@ class SRC_Config {
             );
         }
 
-        $use_socket = ! empty( $values['SRC_REDIS_SOCKET'] );
-
-        // Validate socket file before attempting connection
-        if ( $use_socket ) {
-            $socket_path = $values['SRC_REDIS_SOCKET'];
-            if ( ! file_exists( $socket_path ) ) {
-                return array(
-                    'success' => false,
-                    'message' => "Socket non trovato: {$socket_path}",
-                );
-            }
-            if ( ! is_readable( $socket_path ) || ! is_writable( $socket_path ) ) {
-                return array(
-                    'success' => false,
-                    'message' => "Permessi insufficienti sul socket: {$socket_path} (utente PHP: " . get_current_user() . ')',
-                );
-            }
-        }
+        $use_socket  = ! empty( $values['SRC_REDIS_SOCKET'] );
+        $socket_path = $use_socket ? $values['SRC_REDIS_SOCKET'] : '';
 
         try {
             $redis   = new Redis();
