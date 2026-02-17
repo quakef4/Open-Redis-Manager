@@ -207,9 +207,6 @@ class WP_Object_Cache {
 
             // Connect via Unix socket or TCP
             if ( defined( 'SRC_REDIS_SOCKET' ) && SRC_REDIS_SOCKET ) {
-                if ( ! file_exists( SRC_REDIS_SOCKET ) ) {
-                    throw new Exception( 'Redis socket non trovato: ' . SRC_REDIS_SOCKET );
-                }
                 $connected = $this->redis->connect( SRC_REDIS_SOCKET, 0, $timeout, null, 0, $read_timeout );
             } else {
                 $connected = $this->redis->connect( $host, $port, $timeout, null, 0, $read_timeout );

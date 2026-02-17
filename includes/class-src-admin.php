@@ -278,22 +278,8 @@ class SRC_Admin {
                 ) );
             }
 
-            $use_socket = defined( 'SRC_REDIS_SOCKET' ) && SRC_REDIS_SOCKET;
-
-            // Validate socket file before attempting connection
-            if ( $use_socket ) {
-                $socket_path = SRC_REDIS_SOCKET;
-                if ( ! file_exists( $socket_path ) ) {
-                    wp_send_json_error( array(
-                        'message' => "Socket non trovato: {$socket_path}",
-                    ) );
-                }
-                if ( ! is_readable( $socket_path ) || ! is_writable( $socket_path ) ) {
-                    wp_send_json_error( array(
-                        'message' => "Permessi insufficienti sul socket: {$socket_path} (utente PHP: " . get_current_user() . ')',
-                    ) );
-                }
-            }
+            $use_socket  = defined( 'SRC_REDIS_SOCKET' ) && SRC_REDIS_SOCKET;
+            $socket_path = $use_socket ? SRC_REDIS_SOCKET : '';
 
             try {
                 $test_redis = new Redis();
