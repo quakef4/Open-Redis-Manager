@@ -148,7 +148,7 @@ class SRC_Admin {
             return;
         }
 
-        $settings     = Starter_Redis_Cache::get_settings();
+        $settings     = Open_Redis_Manager::get_settings();
         $dropin       = new SRC_Dropin();
         $status       = $dropin->get_status();
         $config       = new SRC_Config();
