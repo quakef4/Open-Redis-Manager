@@ -142,16 +142,16 @@
                 var config = srcPresets[preset];
 
                 if (config.non_persistent_groups !== undefined) {
-                    $('#src-non-persistent').val(config.non_persistent_groups);
+                    SRC.mergeTextareaLines('#src-non-persistent', config.non_persistent_groups);
                 }
                 if (config.redis_hash_groups !== undefined) {
-                    $('#src-hash-groups').val(config.redis_hash_groups);
+                    SRC.mergeTextareaLines('#src-hash-groups', config.redis_hash_groups);
                 }
                 if (config.global_groups !== undefined) {
-                    $('#src-global-groups').val(config.global_groups);
+                    SRC.mergeTextareaLines('#src-global-groups', config.global_groups);
                 }
                 if (config.custom_ttl !== undefined) {
-                    $('#src-custom-ttl').val(config.custom_ttl);
+                    SRC.mergeTextareaTtl('#src-custom-ttl', config.custom_ttl);
                 }
 
                 // Highlight selected
@@ -164,7 +164,7 @@
                 $('.src-tab-content').removeClass('active');
                 $('#tab-groups').addClass('active');
 
-                SRC.showNotice('Preset applicato. Salva le impostazioni per attivare.', 'success');
+                SRC.showNotice('Preset applicato (unito ai gruppi esistenti). Salva le impostazioni per attivare.', 'success');
             });
         },
 
@@ -903,6 +903,54 @@
             if (writeCmds.indexOf(cmd) !== -1) return 'src-cmd-write';
             if (infoCmds.indexOf(cmd) !== -1) return 'src-cmd-info';
             return 'src-cmd-other';
+        },
+
+        /**
+         * Merge preset lines into a textarea without overwriting existing entries.
+         * Adds only lines from presetValue that are not already present.
+         */
+        mergeTextareaLines: function (selector, presetValue) {
+            var $el = $(selector);
+            var existing = $el.val().split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+            var incoming = (presetValue || '').split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+
+            var existingSet = {};
+            existing.forEach(function (line) { existingSet[line.toLowerCase()] = true; });
+
+            incoming.forEach(function (line) {
+                if (!existingSet[line.toLowerCase()]) {
+                    existing.push(line);
+                    existingSet[line.toLowerCase()] = true;
+                }
+            });
+
+            $el.val(existing.join('\n'));
+        },
+
+        /**
+         * Merge preset TTL entries (group:seconds) into a textarea.
+         * Existing TTL values for the same group are preserved; only new groups are added.
+         */
+        mergeTextareaTtl: function (selector, presetValue) {
+            var $el = $(selector);
+            var existing = $el.val().split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+            var incoming = (presetValue || '').split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+
+            var existingGroups = {};
+            existing.forEach(function (line) {
+                var group = line.split(':')[0].trim().toLowerCase();
+                if (group) existingGroups[group] = true;
+            });
+
+            incoming.forEach(function (line) {
+                var group = line.split(':')[0].trim().toLowerCase();
+                if (group && !existingGroups[group]) {
+                    existing.push(line);
+                    existingGroups[group] = true;
+                }
+            });
+
+            $el.val(existing.join('\n'));
         },
 
         showNotice: function (message, type) {

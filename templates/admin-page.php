@@ -361,7 +361,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="src-tab-content" id="tab-presets">
             <p class="description">
                 Seleziona un preset per applicare una configurazione ottimizzata.
-                I preset sovrascrivono le impostazioni correnti dei gruppi cache e TTL.
+                I gruppi del preset vengono uniti a quelli esistenti senza sovrascrivere le impostazioni correnti.
             </p>
 
             <div class="src-presets-grid">
