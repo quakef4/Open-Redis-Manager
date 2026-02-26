@@ -62,7 +62,10 @@ class SRC_Admin {
         register_setting(
             'starter_redis_cache',
             SRC_OPTION_NAME,
-            array( $this, 'sanitize_settings' )
+            array(
+                'type'              => 'array',
+                'sanitize_callback' => array( $this, 'sanitize_settings' ),
+            )
         );
     }
 
