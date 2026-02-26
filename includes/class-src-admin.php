@@ -35,6 +35,7 @@ class SRC_Admin {
             'src_save_config',
             'src_test_config',
             'src_remove_config',
+            'src_save_settings',
         );
 
         foreach ( $ajax_actions as $action ) {
@@ -876,6 +877,75 @@ class SRC_Admin {
         } else {
             wp_send_json_error( array(
                 'message' => 'Errore durante la rimozione del drop-in.',
+            ) );
+        }
+    }
+
+    // =========================================================================
+    // AJAX: Settings Management
+    // =========================================================================
+
+    /**
+     * Save plugin settings via AJAX (bypasses options.php).
+     */
+    public function src_save_settings() {
+        check_ajax_referer( 'src_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Permesso negato' );
+        }
+
+        $raw = isset( $_POST['settings'] ) ? $_POST['settings'] : array();
+        if ( ! is_array( $raw ) ) {
+            wp_send_json_error( array( 'message' => 'Dati non validi.' ) );
+        }
+
+        $sanitized = $this->sanitize_settings( $raw );
+
+        // Write directly to the database, bypassing object cache for reliability.
+        global $wpdb;
+        $option_name  = SRC_OPTION_NAME;
+        $option_value = maybe_serialize( $sanitized );
+
+        $exists = $wpdb->get_var(
+            $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name = %s", $option_name )
+        );
+
+        if ( $exists ) {
+            $wpdb->update(
+                $wpdb->options,
+                array( 'option_value' => $option_value ),
+                array( 'option_name' => $option_name )
+            );
+        } else {
+            $wpdb->insert(
+                $wpdb->options,
+                array(
+                    'option_name'  => $option_name,
+                    'option_value' => $option_value,
+                    'autoload'     => 'yes',
+                )
+            );
+        }
+
+        // Flush the object cache for this option so the next page load reads from DB.
+        wp_cache_delete( 'alloptions', 'options' );
+        wp_cache_delete( $option_name, 'options' );
+
+        // Verify the value was saved correctly.
+        $verified = $wpdb->get_var(
+            $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $option_name )
+        );
+        $verified_data = maybe_unserialize( $verified );
+
+        if ( is_array( $verified_data ) && $verified_data['non_persistent_groups'] === $sanitized['non_persistent_groups'] ) {
+            wp_send_json_success( array(
+                'message'  => 'Impostazioni salvate con successo.',
+                'settings' => $sanitized,
+            ) );
+        } else {
+            wp_send_json_error( array(
+                'message' => 'Errore: il salvataggio nel database non è andato a buon fine.',
             ) );
         }
     }

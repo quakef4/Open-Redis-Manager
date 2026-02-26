@@ -104,6 +104,11 @@
                 }
             });
 
+            // Settings save (via AJAX)
+            $('#src-save-settings').on('click', function () {
+                SRC.saveSettings();
+            });
+
             // wp-config.php management
             $('#src-save-config').on('click', function () {
                 SRC.saveConfig();
@@ -710,6 +715,43 @@
         // =====================================================================
         // AJAX: wp-config.php Management
         // =====================================================================
+
+        /**
+         * Save plugin settings (groups, TTL) via AJAX.
+         */
+        saveSettings: function () {
+            var $btn = $('#src-save-settings');
+            var $status = $('#src-settings-status');
+            $btn.prop('disabled', true);
+            $status.text('Salvataggio...').removeClass('src-status-ok src-status-err');
+
+            var settings = {
+                enabled: $('#src-enabled').is(':checked') ? '1' : '',
+                non_persistent_groups: $('#src-non-persistent').val(),
+                redis_hash_groups: $('#src-hash-groups').val(),
+                global_groups: $('#src-global-groups').val(),
+                custom_ttl: $('#src-custom-ttl').val()
+            };
+
+            $.post(srcRedis.ajaxUrl, {
+                action: 'src_save_settings',
+                nonce: srcRedis.nonce,
+                settings: settings
+            }, function (response) {
+                $btn.prop('disabled', false);
+                if (response.success) {
+                    $status.text(response.data.message).addClass('src-status-ok');
+                    SRC.showNotice(response.data.message, 'success');
+                } else {
+                    $status.text(response.data.message || srcRedis.i18n.error).addClass('src-status-err');
+                    SRC.showNotice(response.data.message || srcRedis.i18n.error, 'error');
+                }
+            }).fail(function () {
+                $btn.prop('disabled', false);
+                $status.text(srcRedis.i18n.error).addClass('src-status-err');
+                SRC.showNotice(srcRedis.i18n.error, 'error');
+            });
+        },
 
         /**
          * Collect config form values into an object.

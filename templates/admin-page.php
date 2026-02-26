@@ -97,14 +97,13 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
     </div>
 
-    <!-- Settings Form -->
-    <form method="post" action="options.php" id="src-settings-form">
-        <?php settings_fields( 'starter_redis_cache' ); ?>
+    <!-- Settings Form (saved via AJAX, no options.php) -->
+    <form id="src-settings-form" onsubmit="return false;" autocomplete="off">
 
         <!-- Enable/Disable -->
         <div class="src-toggle-section">
             <label class="src-switch">
-                <input type="checkbox" name="<?php echo esc_attr( SRC_OPTION_NAME ); ?>[enabled]" value="1"
+                <input type="checkbox" name="enabled" value="1" id="src-enabled"
                     <?php checked( $settings['enabled'] ); ?>>
                 <span class="src-slider"></span>
             </label>
@@ -129,7 +128,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     Gruppi memorizzati solo in RAM (non salvati in Redis). Essenziale per sessioni WooCommerce
                     e dati carrello per evitare condivisione tra utenti. Un gruppo per riga.
                 </p>
-                <textarea name="<?php echo esc_attr( SRC_OPTION_NAME ); ?>[non_persistent_groups]"
+                <textarea name="non_persistent_groups"
                     rows="8" class="large-text code"
                     id="src-non-persistent"><?php echo esc_textarea( $settings['non_persistent_groups'] ); ?></textarea>
             </div>
@@ -144,7 +143,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <strong>Attenzione YITH:</strong> Se utilizzi YITH Request a Quote, NON includere "options"
                     nei gruppi hash. YITH salva le sessioni come opzioni WordPress.
                 </div>
-                <textarea name="<?php echo esc_attr( SRC_OPTION_NAME ); ?>[redis_hash_groups]"
+                <textarea name="redis_hash_groups"
                     rows="6" class="large-text code"
                     id="src-hash-groups"><?php echo esc_textarea( $settings['redis_hash_groups'] ); ?></textarea>
             </div>
@@ -154,7 +153,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <p class="description">
                     Gruppi condivisi tra tutti i blog in un'installazione WordPress Multisite. Un gruppo per riga.
                 </p>
-                <textarea name="<?php echo esc_attr( SRC_OPTION_NAME ); ?>[global_groups]"
+                <textarea name="global_groups"
                     rows="5" class="large-text code"
                     id="src-global-groups"><?php echo esc_textarea( $settings['global_groups'] ); ?></textarea>
             </div>
@@ -168,7 +167,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     Imposta tempi di scadenza personalizzati per ogni gruppo cache.
                     Formato: <code>nome_gruppo:secondi</code> (un valore per riga).
                 </p>
-                <textarea name="<?php echo esc_attr( SRC_OPTION_NAME ); ?>[custom_ttl]"
+                <textarea name="custom_ttl"
                     rows="8" class="large-text code"
                     id="src-custom-ttl"><?php echo esc_textarea( $settings['custom_ttl'] ); ?></textarea>
 
@@ -565,7 +564,10 @@ define( 'SRC_REDIS_PREFIX', 'dom1_' );  // univoco per sito</code></pre>
 
         <!-- Save Button -->
         <div class="src-save-section">
-            <?php submit_button( __( 'Salva Impostazioni', 'starter-redis-cache' ), 'primary', 'submit', false ); ?>
+            <button type="button" class="button button-primary" id="src-save-settings">
+                <?php esc_html_e( 'Salva Impostazioni', 'starter-redis-cache' ); ?>
+            </button>
+            <span class="src-settings-status" id="src-settings-status"></span>
         </div>
     </form>
 </div>
