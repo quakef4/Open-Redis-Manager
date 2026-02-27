@@ -266,7 +266,20 @@ final class Open_Redis_Manager {
             'custom_ttl'            => '',
         );
 
-        $settings = get_option( SRC_OPTION_NAME, $defaults );
+        // In admin context after a save, read directly from DB to bypass stale cache.
+        if ( is_admin() && ! empty( $_GET['settings-saved'] ) ) {
+            global $wpdb;
+            $row = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s LIMIT 1",
+                    SRC_OPTION_NAME
+                )
+            );
+            $settings = ( null !== $row ) ? maybe_unserialize( $row ) : $defaults;
+        } else {
+            $settings = get_option( SRC_OPTION_NAME, $defaults );
+        }
+
         if ( ! is_array( $settings ) ) {
             return $defaults;
         }

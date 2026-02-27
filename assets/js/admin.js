@@ -713,45 +713,59 @@
         },
 
         // =====================================================================
-        // AJAX: wp-config.php Management
+        // AJAX: Settings Save
         // =====================================================================
 
         /**
-         * Save plugin settings (groups, TTL) via AJAX.
+         * Save plugin settings (groups, TTL) via AJAX, then reload page.
          */
         saveSettings: function () {
             var $btn = $('#src-save-settings');
             var $status = $('#src-settings-status');
-            $btn.prop('disabled', true);
-            $status.text('Salvataggio...').removeClass('src-status-ok src-status-err');
+            $btn.prop('disabled', true).text('Salvataggio...');
+            $status.text('').removeClass('src-status-ok src-status-err');
 
             var settings = {
                 enabled: $('#src-enabled').is(':checked') ? '1' : '',
-                non_persistent_groups: $('#src-non-persistent').val(),
-                redis_hash_groups: $('#src-hash-groups').val(),
-                global_groups: $('#src-global-groups').val(),
-                custom_ttl: $('#src-custom-ttl').val()
+                non_persistent_groups: $('#src-non-persistent').val() || '',
+                redis_hash_groups: $('#src-hash-groups').val() || '',
+                global_groups: $('#src-global-groups').val() || '',
+                custom_ttl: $('#src-custom-ttl').val() || ''
             };
 
-            $.post(srcRedis.ajaxUrl, {
-                action: 'src_save_settings',
-                nonce: srcRedis.nonce,
-                settings: settings
-            }, function (response) {
-                $btn.prop('disabled', false);
-                if (response.success) {
-                    $status.text(response.data.message).addClass('src-status-ok');
-                    SRC.showNotice(response.data.message, 'success');
+            $.ajax({
+                url: srcRedis.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'src_save_settings',
+                    nonce: srcRedis.nonce,
+                    settings: settings
+                },
+                timeout: 15000
+            }).done(function (response) {
+                if (response && response.success) {
+                    // Reload page so values are read fresh from DB.
+                    window.location.href = window.location.pathname +
+                        window.location.search.replace(/&settings-saved=\d+/, '') +
+                        '&settings-saved=1';
                 } else {
-                    $status.text(response.data.message || srcRedis.i18n.error).addClass('src-status-err');
-                    SRC.showNotice(response.data.message || srcRedis.i18n.error, 'error');
+                    $btn.prop('disabled', false).text('Salva Impostazioni');
+                    var msg = (response && response.data && response.data.message)
+                        ? response.data.message : 'Errore durante il salvataggio.';
+                    $status.text(msg).addClass('src-status-err');
+                    SRC.showNotice(msg, 'error');
                 }
-            }).fail(function () {
-                $btn.prop('disabled', false);
-                $status.text(srcRedis.i18n.error).addClass('src-status-err');
-                SRC.showNotice(srcRedis.i18n.error, 'error');
+            }).fail(function (xhr, status, error) {
+                $btn.prop('disabled', false).text('Salva Impostazioni');
+                var msg = 'Errore di rete: ' + (error || status);
+                $status.text(msg).addClass('src-status-err');
+                SRC.showNotice(msg, 'error');
             });
         },
+
+        // =====================================================================
+        // AJAX: wp-config.php Management
+        // =====================================================================
 
         /**
          * Collect config form values into an object.

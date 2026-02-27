@@ -152,6 +152,11 @@ class SRC_Admin {
             return;
         }
 
+        // Force fresh read from DB (bypass object cache) after a save.
+        if ( ! empty( $_GET['settings-saved'] ) ) {
+            wp_cache_flush();
+        }
+
         $settings     = Open_Redis_Manager::get_settings();
         $dropin       = new SRC_Dropin();
         $status       = $dropin->get_status();
@@ -886,39 +891,42 @@ class SRC_Admin {
     // =========================================================================
 
     /**
-     * Save plugin settings via AJAX (bypasses options.php).
+     * Save plugin settings via AJAX.
      */
     public function src_save_settings() {
         check_ajax_referer( 'src_nonce', 'nonce' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( 'Permesso negato' );
+            wp_send_json_error( array( 'message' => 'Permesso negato.' ) );
         }
 
-        $raw = isset( $_POST['settings'] ) ? $_POST['settings'] : array();
+        $raw = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : array();
         if ( ! is_array( $raw ) ) {
             wp_send_json_error( array( 'message' => 'Dati non validi.' ) );
         }
 
         $sanitized = $this->sanitize_settings( $raw );
 
-        // Write directly to the database, bypassing object cache for reliability.
+        // Write directly to the database to avoid object cache interference.
         global $wpdb;
         $option_name  = SRC_OPTION_NAME;
         $option_value = maybe_serialize( $sanitized );
 
-        $exists = $wpdb->get_var(
-            $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name = %s", $option_name )
+        $existing = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s LIMIT 1",
+                $option_name
+            )
         );
 
-        if ( $exists ) {
-            $wpdb->update(
+        if ( null !== $existing ) {
+            $result = $wpdb->update(
                 $wpdb->options,
                 array( 'option_value' => $option_value ),
                 array( 'option_name' => $option_name )
             );
         } else {
-            $wpdb->insert(
+            $result = $wpdb->insert(
                 $wpdb->options,
                 array(
                     'option_name'  => $option_name,
@@ -928,26 +936,18 @@ class SRC_Admin {
             );
         }
 
-        // Flush the object cache for this option so the next page load reads from DB.
-        wp_cache_delete( 'alloptions', 'options' );
-        wp_cache_delete( $option_name, 'options' );
-
-        // Verify the value was saved correctly.
-        $verified = $wpdb->get_var(
-            $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $option_name )
-        );
-        $verified_data = maybe_unserialize( $verified );
-
-        if ( is_array( $verified_data ) && $verified_data['non_persistent_groups'] === $sanitized['non_persistent_groups'] ) {
-            wp_send_json_success( array(
-                'message'  => 'Impostazioni salvate con successo.',
-                'settings' => $sanitized,
-            ) );
-        } else {
+        if ( false === $result ) {
             wp_send_json_error( array(
-                'message' => 'Errore: il salvataggio nel database non è andato a buon fine.',
+                'message' => 'Errore database: ' . $wpdb->last_error,
             ) );
         }
+
+        // Flush ALL object cache to guarantee the next page load reads from DB.
+        wp_cache_flush();
+
+        wp_send_json_success( array(
+            'message' => 'Impostazioni salvate con successo.',
+        ) );
     }
 
     // =========================================================================
