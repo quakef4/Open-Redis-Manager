@@ -97,8 +97,15 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
     </div>
 
-    <!-- Settings Form (saved via AJAX, no options.php) -->
-    <form id="src-settings-form" onsubmit="return false;" autocomplete="off">
+    <?php if ( ! empty( $_GET['settings-saved'] ) ) : ?>
+        <div class="notice notice-success is-dismissible">
+            <p><strong>Impostazioni salvate con successo.</strong></p>
+        </div>
+    <?php endif; ?>
+
+    <!-- Settings Form (direct POST, bypasses options.php / AJAX) -->
+    <form id="src-settings-form" method="post" autocomplete="off">
+        <?php wp_nonce_field( 'src_save_settings', 'src_save_settings_nonce' ); ?>
 
         <!-- Enable/Disable -->
         <div class="src-toggle-section">
@@ -564,10 +571,9 @@ define( 'SRC_REDIS_PREFIX', 'dom1_' );  // univoco per sito</code></pre>
 
         <!-- Save Button -->
         <div class="src-save-section">
-            <button type="button" class="button button-primary" id="src-save-settings">
+            <button type="submit" class="button button-primary" id="src-save-settings">
                 <?php esc_html_e( 'Salva Impostazioni', 'starter-redis-cache' ); ?>
             </button>
-            <span class="src-settings-status" id="src-settings-status"></span>
         </div>
     </form>
 </div>

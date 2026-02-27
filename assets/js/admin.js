@@ -104,9 +104,11 @@
                 }
             });
 
-            // Settings save (via AJAX)
-            $('#src-save-settings').on('click', function () {
-                SRC.saveSettings();
+            // Prevent Enter key in config fields from submitting the main form.
+            $('#src-config-form input').on('keypress', function (e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                }
             });
 
             // wp-config.php management
@@ -709,57 +711,6 @@
                 } else {
                     SRC.showNotice(response.data.message || srcRedis.i18n.error, 'error');
                 }
-            });
-        },
-
-        // =====================================================================
-        // AJAX: Settings Save
-        // =====================================================================
-
-        /**
-         * Save plugin settings (groups, TTL) via AJAX, then reload page.
-         */
-        saveSettings: function () {
-            var $btn = $('#src-save-settings');
-            var $status = $('#src-settings-status');
-            $btn.prop('disabled', true).text('Salvataggio...');
-            $status.text('').removeClass('src-status-ok src-status-err');
-
-            var settings = {
-                enabled: $('#src-enabled').is(':checked') ? '1' : '',
-                non_persistent_groups: $('#src-non-persistent').val() || '',
-                redis_hash_groups: $('#src-hash-groups').val() || '',
-                global_groups: $('#src-global-groups').val() || '',
-                custom_ttl: $('#src-custom-ttl').val() || ''
-            };
-
-            $.ajax({
-                url: srcRedis.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'src_save_settings',
-                    nonce: srcRedis.nonce,
-                    settings: settings
-                },
-                timeout: 15000
-            }).done(function (response) {
-                if (response && response.success) {
-                    // Reload page so values are read fresh from DB.
-                    window.location.href = window.location.pathname +
-                        window.location.search.replace(/&settings-saved=\d+/, '') +
-                        '&settings-saved=1';
-                } else {
-                    $btn.prop('disabled', false).text('Salva Impostazioni');
-                    var msg = (response && response.data && response.data.message)
-                        ? response.data.message : 'Errore durante il salvataggio.';
-                    $status.text(msg).addClass('src-status-err');
-                    SRC.showNotice(msg, 'error');
-                }
-            }).fail(function (xhr, status, error) {
-                $btn.prop('disabled', false).text('Salva Impostazioni');
-                var msg = 'Errore di rete: ' + (error || status);
-                $status.text(msg).addClass('src-status-err');
-                SRC.showNotice(msg, 'error');
             });
         },
 

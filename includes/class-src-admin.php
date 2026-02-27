@@ -35,7 +35,6 @@ class SRC_Admin {
             'src_save_config',
             'src_test_config',
             'src_remove_config',
-            'src_save_settings',
         );
 
         foreach ( $ajax_actions as $action ) {
@@ -47,13 +46,84 @@ class SRC_Admin {
      * Register admin menu page.
      */
     public function add_admin_menu() {
-        add_management_page(
+        $hook = add_management_page(
             __( 'Open Redis Manager', 'starter-redis-cache' ),
             __( 'Redis Manager', 'starter-redis-cache' ),
             'manage_options',
             'starter-redis-cache',
             array( $this, 'render_admin_page' )
         );
+
+        // Handle form POST before any output so wp_safe_redirect() works.
+        if ( $hook ) {
+            add_action( 'load-' . $hook, array( $this, 'handle_form_submission' ) );
+        }
+    }
+
+    /**
+     * Handle settings form POST submission (runs before page output).
+     */
+    public function handle_form_submission() {
+        if ( 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+            return;
+        }
+        if ( ! isset( $_POST['src_save_settings_nonce'] ) ) {
+            return;
+        }
+        if ( ! wp_verify_nonce( $_POST['src_save_settings_nonce'], 'src_save_settings' ) ) {
+            wp_die( 'Nonce non valido.', 'Errore', array( 'response' => 403 ) );
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Permesso negato.', 'Errore', array( 'response' => 403 ) );
+        }
+
+        $raw = array(
+            'enabled'               => isset( $_POST['enabled'] ) ? $_POST['enabled'] : '',
+            'non_persistent_groups' => isset( $_POST['non_persistent_groups'] ) ? wp_unslash( $_POST['non_persistent_groups'] ) : '',
+            'redis_hash_groups'     => isset( $_POST['redis_hash_groups'] ) ? wp_unslash( $_POST['redis_hash_groups'] ) : '',
+            'global_groups'         => isset( $_POST['global_groups'] ) ? wp_unslash( $_POST['global_groups'] ) : '',
+            'custom_ttl'            => isset( $_POST['custom_ttl'] ) ? wp_unslash( $_POST['custom_ttl'] ) : '',
+        );
+
+        $sanitized = $this->sanitize_settings( $raw );
+
+        // Write directly to the database to bypass object cache.
+        global $wpdb;
+        $option_name  = SRC_OPTION_NAME;
+        $option_value = maybe_serialize( $sanitized );
+
+        $exists = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT option_id FROM {$wpdb->options} WHERE option_name = %s LIMIT 1",
+                $option_name
+            )
+        );
+
+        if ( $exists ) {
+            $wpdb->update(
+                $wpdb->options,
+                array( 'option_value' => $option_value ),
+                array( 'option_name' => $option_name )
+            );
+        } else {
+            $wpdb->insert(
+                $wpdb->options,
+                array(
+                    'option_name'  => $option_name,
+                    'option_value' => $option_value,
+                    'autoload'     => 'yes',
+                )
+            );
+        }
+
+        // Flush ALL object cache so the next page load reads from DB.
+        wp_cache_flush();
+
+        // Post/Redirect/Get pattern to prevent double-submit.
+        wp_safe_redirect(
+            add_query_arg( 'settings-saved', '1', remove_query_arg( 'settings-saved' ) )
+        );
+        exit;
     }
 
     /**
@@ -884,70 +954,6 @@ class SRC_Admin {
                 'message' => 'Errore durante la rimozione del drop-in.',
             ) );
         }
-    }
-
-    // =========================================================================
-    // AJAX: Settings Management
-    // =========================================================================
-
-    /**
-     * Save plugin settings via AJAX.
-     */
-    public function src_save_settings() {
-        check_ajax_referer( 'src_nonce', 'nonce' );
-
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( array( 'message' => 'Permesso negato.' ) );
-        }
-
-        $raw = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : array();
-        if ( ! is_array( $raw ) ) {
-            wp_send_json_error( array( 'message' => 'Dati non validi.' ) );
-        }
-
-        $sanitized = $this->sanitize_settings( $raw );
-
-        // Write directly to the database to avoid object cache interference.
-        global $wpdb;
-        $option_name  = SRC_OPTION_NAME;
-        $option_value = maybe_serialize( $sanitized );
-
-        $existing = $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s LIMIT 1",
-                $option_name
-            )
-        );
-
-        if ( null !== $existing ) {
-            $result = $wpdb->update(
-                $wpdb->options,
-                array( 'option_value' => $option_value ),
-                array( 'option_name' => $option_name )
-            );
-        } else {
-            $result = $wpdb->insert(
-                $wpdb->options,
-                array(
-                    'option_name'  => $option_name,
-                    'option_value' => $option_value,
-                    'autoload'     => 'yes',
-                )
-            );
-        }
-
-        if ( false === $result ) {
-            wp_send_json_error( array(
-                'message' => 'Errore database: ' . $wpdb->last_error,
-            ) );
-        }
-
-        // Flush ALL object cache to guarantee the next page load reads from DB.
-        wp_cache_flush();
-
-        wp_send_json_success( array(
-            'message' => 'Impostazioni salvate con successo.',
-        ) );
     }
 
     // =========================================================================
